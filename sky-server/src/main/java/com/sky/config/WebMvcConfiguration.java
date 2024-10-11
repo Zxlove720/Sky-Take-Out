@@ -45,7 +45,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
     public Docket docket() {
         ApiInfo apiInfo = new ApiInfoBuilder()
                 .title("苍穹外卖项目接口文档")
-                .version("2.0")
+                .version("0.2")
                 .description("苍穹外卖项目接口文档")
                 .build();
         Docket docket = new Docket(DocumentationType.SWAGGER_2)
@@ -57,6 +57,12 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         return docket;
     }
 
+    // 通过Swagger确实可以生成接口文档，但是仍然需要Yapi
+    // Yapi是在设计阶段使用的接口管理工具；Swagger是在开发阶段使用的框架，帮助后端进行测试；二者相辅相成
+
+
+
+    // 必须设置静态资源映射，否则接口文档页面无法访问
     /**
      * 设置静态资源映射
      * @param registry
