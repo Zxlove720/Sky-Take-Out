@@ -1,6 +1,7 @@
 package com.sky.service.impl;
 
 import com.sky.constant.MessageConstant;
+import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
@@ -14,6 +15,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+
+import java.time.LocalDateTime;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -73,9 +76,27 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 对象属性拷贝
         // ---- 将EmployeeDTO中和Employee相同的属性拷贝给Employee对象
         Employee employee = new Employee();
-        BeanUtils.copyProperties(employeeDTO, employee);
+        BeanUtils.copyProperties(employeeDTO, employee); // copyProperties方法：第一个参数是源对象，第二个参数是目标对象
         // Employee的属性比EmployeeDTO的属性更多，所以说拷贝之后需要手动设置Employee对象的属性
 
+        // 设置账号的状态，插入新员工默认是正常状态
+        employee.setStatus(StatusConstant.ENABLE);  // 为了避免硬编码系列问题，需要使用StatusConstant常量类中的属性来代表状态码
+
+        // 设置员工密码，员工默认密码123456，但是前端不会传递密码，需要后端补充
+        // 同样，在后端补充密码的时候，也要用常量类中的字段来避免硬编码的系列问题，并且密码还需要用MD5加密(DigestUtils是spring框架的包)
+        employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
+
+        // 设置当前记录的创建时间和修改时间
+        employee.setCreateTime(LocalDateTime.now());
+        employee.setUpdateTime(LocalDateTime.now());
+
+        // 设置当前记录创建人的id和修改人的id
+        // TODO 目前先随便硬编码一个id，但是后期需要更改为当前登录用户的id
+        employee.setCreateUser(10L);
+        employee.setUpdateUser(10L);
+
+        // 使用mapper层操作数据库，插入一个新的员工
+        employeeMapper.insert(employee);
 
     }
 
