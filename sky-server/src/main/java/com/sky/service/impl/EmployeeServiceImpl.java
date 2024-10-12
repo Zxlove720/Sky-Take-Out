@@ -3,6 +3,7 @@ package com.sky.service.impl;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
+import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.entity.Employee;
@@ -44,7 +45,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         //密码比对
-        // TODO 后期需要进行md5加密，然后再进行比对
         //使用DigestUtils中的md5DigestAsHex方法，传递加密前的密码（注意：传递字节）进行MD5加密之后再比对
         password = DigestUtils.md5DigestAsHex(password.getBytes());
         if (!password.equals(employee.getPassword())) {
@@ -90,10 +90,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setCreateTime(LocalDateTime.now());
         employee.setUpdateTime(LocalDateTime.now());
 
-        // 设置当前记录创建人的id和修改人的id
-        // TODO 目前先随便硬编码一个id，但是后期需要更改为当前登录用户的id
-        employee.setCreateUser(10L);
-        employee.setUpdateUser(10L);
+        // 设置当前记录创建人的id和修改人的id（当前登录用户的id）
+        // 按理来说，Service层无法直接获取当前登录用户的id；但是可以通过ThreadLocal携带变量，
+        // 将解析JWT得到的用户id传递给Service层。因为登录、解析和新增员工操作同属于一个线程（客户端的每一个请求都是一个单独的线程）
+        // 所以在同一个线程内可以获取到对应的值。
+        employee.setCreateUser(BaseContext.getCurrentId());
+        employee.setUpdateUser(BaseContext.getCurrentId());
 
         // 使用mapper层操作数据库，插入一个新的员工
         employeeMapper.insert(employee);
