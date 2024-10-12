@@ -128,4 +128,26 @@ public class EmployeeServiceImpl implements EmployeeService {
         return new PageResult(total, records);
     }
 
+    /**
+     * 启用/禁用员工账号
+     * @param status
+     * @param id
+     */
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        // 不能给Mapper层直接传递status和id，需要封装为Employee实体类再传递给Mapper层
+
+        // 通过Employee中的builder方法构建一个Employee实体对象
+        // 要封装为实体类再传递给Mapper的主要原因：
+        // 1.更加清晰：通过使用实体类，能够直接理解是在操作一个员工对象，代码阅读性提高
+        // 2.减少参数传递：减少了参数传递，更加简洁，并且在传递时不易出错
+        // 3.Mybatis在设计时就是围绕对象操作进行的，更符合Mybatis的设计原则
+        Employee employee = Employee.builder()
+                .status(status)
+                .id(id)
+                .build();
+        // 因为启用/禁用员工账号本质上是修改员工的status属性，所以说直接调用Mapper中的update方法即可
+        employeeMapper.update(employee);
+    }
+
 }

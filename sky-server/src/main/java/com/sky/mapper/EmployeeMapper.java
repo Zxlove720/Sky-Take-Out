@@ -38,4 +38,11 @@ public interface EmployeeMapper {
      * @return
      */
     Page<Employee> pageQuery(EmployeePageQueryDTO employeePageQueryDTO);
+
+    /**
+     * 启用/禁用员工账号
+     * @param employee
+     */
+    // 因为是更新员工，所以说必须根据传递的参数进行动态SQL，使用.xml文件配置文件
+    void update(Employee employee);
 }

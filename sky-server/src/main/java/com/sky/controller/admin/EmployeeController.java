@@ -1,6 +1,7 @@
 package com.sky.controller.admin;
 
 import com.sky.constant.JwtClaimsConstant;
+import com.sky.constant.StatusConstant;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
@@ -105,5 +106,25 @@ public class EmployeeController {
         log.info("员工分页查询，参数为：{}", employeePageQueryDTO);
         PageResult pageResult = employeeService.pageQuery(employeePageQueryDTO);
         return Result.success(pageResult);
+    }
+
+    /**
+     * 启用/禁用员工账号
+     * @param status
+     * @param id
+     * @return
+     */
+    @PostMapping("/status/{status}")
+    @ApiOperation("启用/禁用员工账号")
+    // 前端的请求路径携带当前员工的状态值：若员工状态为禁用，那么要将其变为启用；若状态为启用，则变为禁用
+    // 前端请求路径还传递了id，通过id定位该操作是针对哪个用户
+    public Result startOrStop(@PathVariable Integer status, Long id) {
+        if (status.equals(StatusConstant.ENABLE)) {
+            log.info("禁用员工账号：{}, {}", status, id);
+        } else {
+            log.info("启用员工账号：{}，{}", status, id);
+        }
+        employeeService.startOrStop(status, id);
+        return Result.success();
     }
 }
