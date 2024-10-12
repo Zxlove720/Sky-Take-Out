@@ -2,4 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.EmployeeMapper">
+    <select id="pageQuery" resultType="com.sky.entity.Employee">
+        select * from employee
+        <where>
+            <if test="name != null and name != ''">
+                and name like concat('%', #{name}, '%')
+#       此处作为第一个查询条件，按理来说无需and连接，但是在一些框架中或企业开发中为了统一处理逻辑和避免遗漏条件，都会加上and
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
 </mapper>

@@ -1,5 +1,7 @@
 package com.sky.mapper;
 
+import com.github.pagehelper.Page;
+import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -29,5 +31,11 @@ public interface EmployeeMapper {
     void insert(Employee employee);
 
 
-
+    /**
+     * 分页查询
+     * 因为涉及到动态SQL，所以说使用.xml配置文件的方式进行分页查询
+     * @param employeePageQueryDTO
+     * @return
+     */
+    Page<Employee> pageQuery(EmployeePageQueryDTO employeePageQueryDTO);
 }
