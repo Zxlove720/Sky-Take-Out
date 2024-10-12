@@ -68,6 +68,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * 新增员工
+     *
      * @param employeeDTO
      */
     @Override
@@ -109,6 +110,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * 分页查询
+     *
      * @param employeePageQueryDTO
      * @return
      */
@@ -130,6 +132,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * 启用/禁用员工账号
+     *
      * @param status
      * @param id
      */
@@ -152,6 +155,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * 根据id查询员工信息
+     *
      * @param id
      * @return
      */
@@ -161,6 +165,26 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 回显到前端页面，密码即使通过MD5加密了也不安全，所以说要对回显的密码进行再次加密
         employee.setPassword("******");
         return employee;
+    }
+
+    /**
+     * 编辑员工信息
+     *
+     * @param employeeDTO
+     */
+    @Override
+    public void update(EmployeeDTO employeeDTO) {
+        // 将DTO类转换为对应的实体类————对象拷贝（DTO只是为了前端的数据传输，其中的属性是不全的，给Mapper应该要用对应的实体类）
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(employeeDTO, employee);
+        // 为employee类补充信息
+        // 更新时间
+        employee.setUpdateTime(LocalDateTime.now());
+        // 操作用户的id————根据ThreadLocal得到
+        employee.setUpdateUser(BaseContext.getCurrentId());
+
+        // 调用Mapper层中方法操作数据库（在实现启用/禁用员工账号时已经实现，所以说直接可以使用）
+        employeeMapper.update(employee);
     }
 
 }

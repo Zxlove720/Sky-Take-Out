@@ -92,9 +92,9 @@ public class EmployeeController {
         return Result.success();
     }
 
-
     /**
      * 员工分页查询
+     *
      * @param employeePageQueryDTO
      * @return
      */
@@ -108,9 +108,9 @@ public class EmployeeController {
         return Result.success(pageResult);
     }
 
-
     /**
      * 启用/禁用员工账号
+     *
      * @param status
      * @param id
      * @return
@@ -129,9 +129,9 @@ public class EmployeeController {
         return Result.success();
     }
 
-
     /**
      * 根据id查询员工信息
+     *
      * @param id
      * @return
      */
@@ -142,4 +142,20 @@ public class EmployeeController {
         Employee employee = employeeService.getById(id);
         return Result.success(employee);
     }
+
+    /**
+     * 编辑员工信息
+     *
+     * @param employeeDTO
+     * @return
+     */
+    @PutMapping
+    @ApiOperation("编辑员工信息")
+    public Result update(@RequestBody EmployeeDTO employeeDTO) {
+        log.info("编辑员工信息：{}", employeeDTO);
+        employeeService.update(employeeDTO);
+        return Result.success();
+    }
+
+
 }
