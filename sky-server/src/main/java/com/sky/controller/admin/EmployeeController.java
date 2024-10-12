@@ -108,6 +108,7 @@ public class EmployeeController {
         return Result.success(pageResult);
     }
 
+
     /**
      * 启用/禁用员工账号
      * @param status
@@ -126,5 +127,19 @@ public class EmployeeController {
         }
         employeeService.startOrStop(status, id);
         return Result.success();
+    }
+
+
+    /**
+     * 根据id查询员工信息
+     * @param id
+     * @return
+     */
+    // 根据id查询员工信息，查询的员工信息作为修改员工信息的回显
+    @GetMapping("/{id}")
+    @ApiOperation("根据id查询员工信息")
+    public Result<Employee> getById(@PathVariable Long id) {
+        Employee employee = employeeService.getById(id);
+        return Result.success(employee);
     }
 }

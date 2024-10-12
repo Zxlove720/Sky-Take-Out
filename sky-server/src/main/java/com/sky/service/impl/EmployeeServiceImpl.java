@@ -150,4 +150,17 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeMapper.update(employee);
     }
 
+    /**
+     * 根据id查询员工信息
+     * @param id
+     * @return
+     */
+    @Override
+    public Employee getById(Long id) {
+        Employee employee = employeeMapper.getById(id);
+        // 回显到前端页面，密码即使通过MD5加密了也不安全，所以说要对回显的密码进行再次加密
+        employee.setPassword("******");
+        return employee;
+    }
+
 }

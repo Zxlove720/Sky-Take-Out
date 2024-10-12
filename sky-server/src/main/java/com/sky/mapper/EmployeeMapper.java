@@ -30,7 +30,6 @@ public interface EmployeeMapper {
     // 注意：1.values中的值必须和insert中值一一对应 2.表中字段是用下划线分割的，但是类中属性是驼峰命名，要在配置文件中开启驼峰命名
     void insert(Employee employee);
 
-
     /**
      * 分页查询
      * 因为涉及到动态SQL，所以说使用.xml配置文件的方式进行分页查询
@@ -45,4 +44,13 @@ public interface EmployeeMapper {
      */
     // 因为是更新员工，所以说必须根据传递的参数进行动态SQL，使用.xml文件配置文件
     void update(Employee employee);
+
+    /**
+     * 根据id查询员工信息
+     * @param id
+     * @return
+     */
+    // 因为该语句无需动态SQL，相对简单，所以说直接使用注解实现SQL
+    @Select("select * from employee where id = #{id}")
+    Employee getById(Long id);
 }
