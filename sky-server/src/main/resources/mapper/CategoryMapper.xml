@@ -36,7 +36,7 @@
                 and name like concat('%', #{name}, '%') # 开启对姓名字段的模糊匹配
             </if>
             <if test="type != null">
-                and type = #{type};
+                and type = #{type}
             </if>
         </where>
         order by update_time desc
