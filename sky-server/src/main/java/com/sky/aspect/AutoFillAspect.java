@@ -27,13 +27,13 @@ import java.time.LocalDateTime;
 @Slf4j
 public class AutoFillAspect {
 
+
     /**
      * 切入点
      */
     @Pointcut("execution(* com.sky.mapper.*.*(..)) && @annotation(com.sky.annotation.AutoFill)")
     // 切入点表达式：在com.sky.mapper包中所有有AutoFill的注解的方法
     public void autoFillPointCut() {}
-
     /**
      * 前置通知
      */
