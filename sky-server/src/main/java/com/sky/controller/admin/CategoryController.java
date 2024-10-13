@@ -2,6 +2,7 @@ package com.sky.controller.admin;
 // 这是对于菜品和套餐进行分类的Controller
 // TODO 需要完成菜品和套餐的CRUD
 
+import com.sky.constant.StatusConstant;
 import com.sky.dto.CategoryDTO;
 import com.sky.dto.CategoryPageQueryDTO;
 import com.sky.entity.Category;
@@ -76,6 +77,23 @@ public class CategoryController {
     public Result update(@RequestBody CategoryDTO categoryDTO) {
         log.info("修改分类：{}", categoryDTO);
         categoryService.update(categoryDTO);
+        return Result.success();
+    }
+
+    /**
+     * 启用/禁用分类
+     *
+     * @return
+     */
+    @PostMapping("/status/{status}")
+    @ApiOperation("启用/禁用分类")
+    public Result startOrStop(@PathVariable Integer status, Long id) {
+        if (status.equals(StatusConstant.ENABLE)) {
+            log.info("禁用分类：{}", id);
+        } else {
+            log.info("启用分类：{}", id);
+        }
+        categoryService.startOrStop(status, id);
         return Result.success();
     }
 

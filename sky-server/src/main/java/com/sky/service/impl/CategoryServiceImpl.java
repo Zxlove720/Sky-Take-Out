@@ -107,4 +107,22 @@ public class CategoryServiceImpl implements CategoryService {
         // 调用Mapper中的更新方法操作数据库
         categoryMapper.update(category);
     }
+
+    /**
+     * 启用/禁用分类
+     *
+     * @param status
+     * @param id
+     */
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        // 将Controller传递的两个参数封装成Category实体类再在Mapper中使用
+        Category category = Category.builder()
+                .id(id)
+                .status(status)
+                .updateTime(LocalDateTime.now())
+                .updateUser(BaseContext.getCurrentId())
+                .build();
+        categoryMapper.update(category);
+    }
 }
