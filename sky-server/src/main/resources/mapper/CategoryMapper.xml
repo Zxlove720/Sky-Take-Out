@@ -41,4 +41,24 @@
         </where>
         order by update_time desc
     </select>
+
+    <update id="update">
+        update category
+        <set>
+            <if test="type != null">
+                type = #{type},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="sort != null">
+                sort = #{sort},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            update_time = #{updateTime}, update_user = #{updateUser}
+        </set>
+        where id = #{id}
+    </update>
 </mapper>

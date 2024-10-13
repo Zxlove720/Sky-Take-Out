@@ -89,4 +89,22 @@ public class CategoryServiceImpl implements CategoryService {
         // 若既没有关联菜品，也没有关联套餐，那么该分类可以删除
         categoryMapper.deleteById(id);
     }
+
+    /**
+     * 修改分类
+     *
+     * @param categoryDTO
+     */
+    @Override
+    public void update(CategoryDTO categoryDTO) {
+        // 将DTO转换为对应的实体类
+        Category category = new Category();
+        BeanUtils.copyProperties(categoryDTO, category);
+        // 为category对象补充信息
+        category.setUpdateTime(LocalDateTime.now());
+        // 通过LocalThread得到操作用户的信息
+        category.setUpdateUser(BaseContext.getCurrentId());
+        // 调用Mapper中的更新方法操作数据库
+        categoryMapper.update(category);
+    }
 }
