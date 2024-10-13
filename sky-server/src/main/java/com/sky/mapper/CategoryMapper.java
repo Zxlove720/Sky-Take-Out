@@ -22,6 +22,6 @@ public interface CategoryMapper {
      * @param categoryPageQueryDTO
      * @return
      */
-    @Select("select * from category order by update_time desc")
+    // TODO 完善分页查询的需求，需要提供模糊匹配的功能
     Page<Category> pageQuery(CategoryPageQueryDTO categoryPageQueryDTO);
 }

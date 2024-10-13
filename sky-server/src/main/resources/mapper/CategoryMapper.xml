@@ -14,7 +14,8 @@
             <if test="updateTime != null">update_time,</if>
             <if test="createUser != null">create_user,</if>
             <if test="updateUser != null">update_user,</if>
-        </trim> values
+        </trim>
+        values
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
             <if test="type != null">#{type},</if>
@@ -27,4 +28,17 @@
             <if test="updateUser != null">#{updateUser}</if>
         </trim>
     </insert>
+
+    <select id="pageQuery" resultType="com.sky.entity.Category">
+        select * from category
+        <where>
+            <if test="name != null and name != ''">
+                and name like concat('%', #{name}, '%') # 开启对姓名字段的模糊匹配
+            </if>
+            <if test="type != null">
+                and type = #{type};
+            </if>
+        </where>
+        order by update_time desc
+    </select>
 </mapper>
