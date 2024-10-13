@@ -44,10 +44,10 @@ public class CategoryServiceImpl implements CategoryService {
         BeanUtils.copyProperties(categoryDTO, category);
         // 补充实体类缺少的属性
         category.setStatus(StatusConstant.DISABLE);
-        category.setCreateTime(LocalDateTime.now());
-        category.setUpdateTime(LocalDateTime.now());
-        category.setUpdateUser(BaseContext.getCurrentId());
-        category.setCreateUser(BaseContext.getCurrentId());
+//        category.setCreateTime(LocalDateTime.now());
+//        category.setUpdateTime(LocalDateTime.now());
+//        category.setUpdateUser(BaseContext.getCurrentId());
+//        category.setCreateUser(BaseContext.getCurrentId());
         // 调用Mapper中方法操作数据库插入一个新的分类
         categoryMapper.insert(category);
     }
@@ -100,11 +100,11 @@ public class CategoryServiceImpl implements CategoryService {
         // 将DTO转换为对应的实体类
         Category category = new Category();
         BeanUtils.copyProperties(categoryDTO, category);
-        // 为category对象补充信息
-        category.setUpdateTime(LocalDateTime.now());
-        // 通过LocalThread得到操作用户的信息
-        category.setUpdateUser(BaseContext.getCurrentId());
-        // 调用Mapper中的更新方法操作数据库
+//        // 为category对象补充信息
+//        category.setUpdateTime(LocalDateTime.now());
+//        // 通过LocalThread得到操作用户的信息
+//        category.setUpdateUser(BaseContext.getCurrentId());
+//        // 调用Mapper中的更新方法操作数据库
         categoryMapper.update(category);
     }
 
@@ -120,8 +120,8 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = Category.builder()
                 .id(id)
                 .status(status)
-                .updateTime(LocalDateTime.now())
-                .updateUser(BaseContext.getCurrentId())
+//                .updateTime(LocalDateTime.now())
+//                .updateUser(BaseContext.getCurrentId())
                 .build();
         categoryMapper.update(category);
     }

@@ -92,16 +92,16 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 同样，在后端补充密码的时候，也要用常量类中的字段来避免硬编码的系列问题，并且密码还需要用MD5加密(DigestUtils是spring框架的包)
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
 
-        // 设置当前记录的创建时间和修改时间
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
-
-        // 设置当前记录创建人的id和修改人的id（当前登录用户的id）
-        // 按理来说，Service层无法直接获取当前登录用户的id；但是可以通过ThreadLocal携带变量，
-        // 将解析JWT得到的用户id传递给Service层。因为登录、解析和新增员工操作同属于一个线程（客户端的每一个请求都是一个单独的线程）
-        // 所以在同一个线程内可以获取到对应的值。
-        employee.setCreateUser(BaseContext.getCurrentId());
-        employee.setUpdateUser(BaseContext.getCurrentId());
+//        // 设置当前记录的创建时间和修改时间
+//        employee.setCreateTime(LocalDateTime.now());
+//        employee.setUpdateTime(LocalDateTime.now());
+//
+//        // 设置当前记录创建人的id和修改人的id（当前登录用户的id）
+//        // 按理来说，Service层无法直接获取当前登录用户的id；但是可以通过ThreadLocal携带变量，
+//        // 将解析JWT得到的用户id传递给Service层。因为登录、解析和新增员工操作同属于一个线程（客户端的每一个请求都是一个单独的线程）
+//        // 所以在同一个线程内可以获取到对应的值。
+//        employee.setCreateUser(BaseContext.getCurrentId());
+//        employee.setUpdateUser(BaseContext.getCurrentId());
 
         // 使用mapper层操作数据库，插入一个新的员工
         employeeMapper.insert(employee);
@@ -177,11 +177,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 将DTO类转换为对应的实体类————对象拷贝（DTO只是为了前端的数据传输，其中的属性是不全的，给Mapper应该要用对应的实体类）
         Employee employee = new Employee();
         BeanUtils.copyProperties(employeeDTO, employee);
-        // 为employee类补充信息
-        // 更新时间
-        employee.setUpdateTime(LocalDateTime.now());
-        // 操作用户的id————根据ThreadLocal得到
-        employee.setUpdateUser(BaseContext.getCurrentId());
+//        // 为employee类补充信息
+//        // 更新时间
+//        employee.setUpdateTime(LocalDateTime.now());
+//        // 操作用户的id————根据ThreadLocal得到
+//        employee.setUpdateUser(BaseContext.getCurrentId());
 
         // 调用Mapper层中方法操作数据库（在实现启用/禁用员工账号时已经实现，所以说直接可以使用）
         employeeMapper.update(employee);
