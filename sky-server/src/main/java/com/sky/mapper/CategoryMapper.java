@@ -3,6 +3,7 @@ package com.sky.mapper;
 import com.github.pagehelper.Page;
 import com.sky.dto.CategoryPageQueryDTO;
 import com.sky.entity.Category;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -24,4 +25,12 @@ public interface CategoryMapper {
      */
     // TODO 完善分页查询的需求，需要提供模糊匹配的功能
     Page<Category> pageQuery(CategoryPageQueryDTO categoryPageQueryDTO);
+
+    /**
+     * 删除分类
+     *
+     * @param id
+     */
+    @Delete("delete from category where id = #{id}")
+    void deleteById(Long id);
 }
