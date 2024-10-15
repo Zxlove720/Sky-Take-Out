@@ -7,4 +7,11 @@
         from setmeal
         where category_id = #{id}
     </select>
+
+    <select id="getSetMealIdByDishId" resultType="java.lang.Long">
+        select setmeal_id from setmeal_dish where dish_id in
+        <foreach collection="dishIds" item="dishId" separator="," open="(" close=")">
+            #{dishId}
+        </foreach>
+    </select>
 </mapper>

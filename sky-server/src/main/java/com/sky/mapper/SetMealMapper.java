@@ -1,7 +1,8 @@
 package com.sky.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 @Mapper
 public interface SetMealMapper {
@@ -13,4 +14,12 @@ public interface SetMealMapper {
      * @return
      */
     Integer countSetMealByCategory(Long id);
+
+    /**
+     * 查询菜品关联的套餐id
+     *
+     * @param dishIds
+     * @return
+     */
+    List<Long> getSetMealIdByDishId(List<Long> dishIds);
 }
