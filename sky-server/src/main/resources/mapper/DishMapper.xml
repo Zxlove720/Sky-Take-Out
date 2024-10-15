@@ -14,4 +14,27 @@
         values (#{name}, #{categoryId}, #{price}, #{image}, #{description}, #{createTime},
                 #{updateTime}, #{createUser}, #{updateUser}, #{status})
     </insert>
+
+    <select id="pageQuery" resultType="com.sky.vo.DishVO">
+        select d.*, c.name as categoryName from dish d left outer join  category c on d.category_id = c.id
+<!--  从 dish 表中查找所有字段，并用别名 d 表示；
+      从 category 表中查找 name 字段，并用别名 categoryName 表示；
+      使用 left outer join 将 dish 表和 category 表连接起来，连接的条件是 dish 表中的 category_id 字段和 category 表中的 id 字段相等。
+
+      left outer join 确保即使 category 表中没有匹配的记录，dish 表中的所有记录也会被返回，
+      并且 category 表中匹配的 name 字段会出现在 categoryName 列中。没有匹配的记录时，categoryName 列的值将为 NULL -->
+
+        <where>
+            <if test="name != null">
+                and d.name like concat('%',#{name},'%')
+            </if>
+            <if test="categoryId != null">
+                and d.category_id = #{categoryId}
+            </if>
+            <if test="status != null">
+                and d.status = #{status}
+            </if>
+        </where>
+        order by d.create_time desc
+    </select>
 </mapper>
