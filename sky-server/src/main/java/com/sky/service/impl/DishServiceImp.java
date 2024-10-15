@@ -39,9 +39,12 @@ public class DishServiceImp implements DishService {
         dishMapper.insert(dish);
 
         // 获取insert语句生成的主键值
+        // 这个是dish的主键id，也就是dish_id，dish_flavor中需要这个属性
         Long dishId = dish.getId();
 
         List<DishFlavor> flavors = dishDTO.getFlavors();
+        // 判断当前添加的菜品口味
+        // 如果口味不是null或者空（说明有口味），那么就在口味表中插入添加菜品的口味
         if (flavors != null && !flavors.isEmpty()) {
             flavors.forEach(new Consumer<DishFlavor>() {
                 @Override
