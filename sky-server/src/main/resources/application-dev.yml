@@ -12,3 +12,9 @@ sky:
     access-key-id: LTAI5tKr5ZzpE1BRJ4yHGEVQ
     access-key-secret: DqZAfe3cXfX79J72RmcszqEX0wG3D5
     bucket-name: wzb-study
+
+  redis:
+    host: localhost
+    port: 6379
+    password: 262460
+    database: 0
