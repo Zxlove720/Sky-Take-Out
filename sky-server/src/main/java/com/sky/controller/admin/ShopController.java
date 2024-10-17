@@ -8,9 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+// 虽然可以通过一张MySql中的表来存储营业状态的数据，但是表中就只有营业状态这个字段，所以说没有必要，所以说选择Redis的字符串来存储
+@RestController("adminShopController")
 @RequestMapping("/admin/shop")
-@Api("店铺相关接口")
+@Api(tags = "店铺相关接口")
 @Slf4j
 public class ShopController {
     public static final String KEY = "SHOP_STATUS";
