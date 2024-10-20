@@ -68,6 +68,7 @@ public class CategoryController {
         return Result.success();
     }
 
+
     /**
      * 修改分类
      *
@@ -99,6 +100,8 @@ public class CategoryController {
         return Result.success();
     }
 
+
+
     /**
      * 根据类型查询分类
      *
@@ -112,6 +115,7 @@ public class CategoryController {
         return Result.success(list);
     }
 
+    public static void main(String[] args) {
 
-
+    }
 }
