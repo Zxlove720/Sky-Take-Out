@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
+// 这个VO类是返回登录信息的类
 @Data
 @Builder
 @NoArgsConstructor
