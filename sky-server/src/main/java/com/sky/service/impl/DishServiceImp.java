@@ -173,7 +173,9 @@ public class DishServiceImp implements DishService {
      */
     @Override
     public List<DishVO> listWithFlavor(Dish dish) {
+        // 获取根据当前菜品分类id查询出来的所有菜品的列表
         List<Dish> dishList = dishMapper.list(dish.getCategoryId());
+        // 创建一个DishVO
         List<DishVO> dishVOList = new ArrayList<>();
         for (Dish d : dishList) {
             DishVO dishVO = new DishVO();

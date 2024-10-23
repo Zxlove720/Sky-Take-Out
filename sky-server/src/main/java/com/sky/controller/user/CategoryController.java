@@ -24,7 +24,7 @@ public class CategoryController {
     private CategoryService categoryService;
 
     /**
-     * 查询分类
+     * 查询菜品分类
      *
      * @param type
      * @return
