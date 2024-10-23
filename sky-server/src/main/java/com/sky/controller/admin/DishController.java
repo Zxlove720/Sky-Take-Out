@@ -11,9 +11,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 菜品管理
@@ -28,6 +30,23 @@ public class DishController {
     @Autowired
     private DishService dishService;
 
+    // 需要在修改数据时，删除redis中的缓存，保证数据库和redis缓存的一致性
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+    /**
+     * 在每次管理端修改数据后，清除redis中的数据
+     *
+     * @param pattern
+     */
+    public void cleanCache(String pattern) {
+        Set keys = redisTemplate.keys(pattern);
+        // redis 中的删除方法，可以传递Collection对象，会删除所有Collection中的键
+        redisTemplate.delete(keys);
+
+    }
+
+
     /**
      * 新增菜品
      *
@@ -39,6 +58,11 @@ public class DishController {
     public Result save(@RequestBody DishDTO dishDTO) {
         log.info("新增菜品：{}", dishDTO);
         dishService.saveWithFlavor(dishDTO);
+        // 新增了菜品，所以说需要清理缓存的数据
+        // 拼接键值
+        String key = "dish_" + dishDTO.getCategoryId();
+        // 调用清除缓存的方法
+        cleanCache(key);
         return Result.success();
     }
 
