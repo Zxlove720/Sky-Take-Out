@@ -187,4 +187,21 @@ public class DishServiceImp implements DishService {
         }
         return dishVOList;
     }
+
+    /**
+     * 菜品起售停售
+     *
+     * @param status
+     * @param id
+     */
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        log.info("修改菜品的状态为：{}", status);
+        // 将Controller传递的菜品的两个参数封装为对应的Dish实体类再调用Mapper中的方法
+        Dish dish = Dish.builder()
+                .status(status)
+                .id(id)
+                .build();
+        dishMapper.update(dish);
+    }
 }

@@ -39,11 +39,11 @@ public class DishController {
      *
      * @param pattern
      */
+    // 这是一个抽取出来的统一的删除redis缓存的方法，需要给方法传递删除的模式（比如说一个键）
     public void cleanCache(String pattern) {
         Set keys = redisTemplate.keys(pattern);
         // redis 中的删除方法，可以传递Collection对象，会删除所有Collection中的键
         redisTemplate.delete(keys);
-
     }
 
 
@@ -59,7 +59,7 @@ public class DishController {
         log.info("新增菜品：{}", dishDTO);
         dishService.saveWithFlavor(dishDTO);
         // 新增了菜品，所以说需要清理缓存的数据
-        // 拼接键值
+        // 拼接键值（键是dish_ + 当前菜品对应的分类id）
         String key = "dish_" + dishDTO.getCategoryId();
         // 调用清除缓存的方法
         cleanCache(key);
@@ -94,6 +94,10 @@ public class DishController {
     public Result deleteDish(@RequestParam List<Long> ids) {
         log.info("菜品正在删除：{}", ids);
         dishService.deleteBatch(ids);
+        // 删除了菜品之后，需要清除其缓存数据
+        // 因为前端传递的请求只有需要删除的菜品的id的集合，但是redis中缓存的是dish_ + "菜品对应的分类id"，所以说不方便拼接
+        // 键，所以说为了方便，每当删除菜品时，直接将redis中缓存的菜品全部删除（也就是删除redis中全部dish_开头的键）
+        cleanCache("dish_*");
         return Result.success();
     }
 
@@ -122,6 +126,30 @@ public class DishController {
     public Result update(@RequestBody DishDTO dishDTO) {
         log.info("修改菜品：{}", dishDTO);
         dishService.updateWithFlavor(dishDTO);
+        // 当菜品修改之后，需要清除其redis中的缓存
+        // 本来可以使用dish_ + 分类id拼接成一个精确匹配，但是使用get方法也需要去查询数据库，假如说是在高峰期，是得不偿失的，所以说
+        // 直接使用模糊匹配，删除所有键
+//        String key = "dish_" + dishDTO.getCategoryId();
+//        cleanCache(key);
+        cleanCache("dish_*");
+        return Result.success();
+    }
+
+    /**
+     * 菜品起售停售
+     *
+     * @param status
+     * @param id
+     * @return
+     */
+    @PostMapping("/status/{status}")
+    @ApiOperation("菜品起售停售")
+    public Result<String> startOrStop(@PathVariable Integer status, Long id) {
+        dishService.startOrStop(status, id);
+
+        // 同样如此，前端请求的数据没有分类id，所以说当更改了一个菜品的售卖状态，那么直接将所有的菜品缓存清除
+        cleanCache("dish_*");
+
         return Result.success();
     }
 }

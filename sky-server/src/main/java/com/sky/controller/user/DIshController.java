@@ -50,7 +50,7 @@ public class DIshController {
     public Result<List<DishVO>> list(Long categoryId) {
         // 构造redis中使用的key，规则：dish_分类id代表不同的菜品分类
         String key = "dish_" + categoryId;
-        // 查询redis中是否查找当前key对应的菜品数据
+        // 查询redis中是否查找当前key对应的菜品数据，将菜品数据封装为list集合返回
         List<DishVO> valueList = (List<DishVO>) redisTemplate.opsForValue().get(key);
         if (valueList != null && !valueList.isEmpty()) {
             // 若存在这个值，那么直接返回，无需查询数据库
