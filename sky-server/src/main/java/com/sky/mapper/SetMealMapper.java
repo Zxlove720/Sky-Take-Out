@@ -54,9 +54,9 @@ public interface SetMealMapper {
      *
      * @param setmeal
      */
-    @Insert("insert into setmeal (id, category_Id, name, price, status, description, image, create_time, update_time, " +
-            "create_user, update_user) values (#{id}, #{categoryId}, #{name}, #{price}, #{status}, #{description}, " +
-            "#{image}, #{createTime}, #{updateTime}, #{createUser}, #{updateUser})")
+    // TODO重大BUG，因为要使用自动自增的id给当前的setmeal对象，所以说不能直接使用@Insert注解，而必须使用xml配置SQL
+    // useGeneratedKeys="true"：表示在插入数据后，要使用数据库生成的键值（通常是自增主键）
+    // keyProperty="id"：指定将数据库生成的键值赋值给传入参数对象的id属性，这样才能将自增的id给setmeal对象
     @AutoFill(value = OperationType.INSERT)
     void insert(Setmeal setmeal);
 }

@@ -55,18 +55,22 @@ public class SetMealServiceImpl implements SetMealService {
      */
     @Override
     public void save(SetmealDTO setmealDTO) {
-        // 将SetmealDTO对象拷贝为Setmeal对象
+        // 将SetmealDTO对象封装为对应的setmealDTO对象
         Setmeal setmeal = new Setmeal();
         BeanUtils.copyProperties(setmealDTO, setmeal);
         // 因为有AOP编程，所以说不需要再为setmeal对象补充属性了
         // 直接调用Mapper中的方法添加新的套餐在数据库中
         setMealMapper.insert(setmeal);
+
         // 需要将套餐和对应的菜品建立联系，所以说需要将套餐的id和其对应的菜品id添加到setmeal_dish表中
-        // 获取套餐的id
+        // 获取这次请求添加的套餐的id
         Long setmealId = setmeal.getId();
-        // 将套餐及其对应的菜品全部获得出来，添加到list中
+        log.info("setmealID:{}", setmealId);
+        // setmealDTO中的setmealdishes是一个arraylist集合，其中存储的是SetmealDish对象，
+        // 对象中有菜品的信息，需要为其补充菜品所属的套餐id
+        // 获取当前套餐下存储的setmealDish的信息
         List<SetmealDish> setmealDishs = setmealDTO.getSetmealDishes();
-        // 设置套餐及其菜品关系的套餐id
+        // 为当前套餐下存储的所有setmealDish关联当前套餐的id
         setmealDishs.forEach(new Consumer<SetmealDish>() {
             @Override
             public void accept(SetmealDish setmealDish) {
