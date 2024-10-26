@@ -1,5 +1,6 @@
 package com.sky.controller.admin;
 
+import com.sky.constant.StatusConstant;
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
@@ -151,5 +152,22 @@ public class DishController {
         cleanCache("dish_*");
 
         return Result.success();
+    }
+
+    /**
+     * 根据分类id查询该分类下所有菜品
+     *
+     * @param categoryId
+     * @return
+     */
+    @GetMapping("/list")
+    @ApiOperation("根据菜品分类查询对应菜品")
+    public Result<List<DishVO>> list(Long categoryId) {
+        Dish dish = new Dish();
+        dish.setCategoryId(categoryId);
+        // 查询在售状态中的菜品
+        dish.setStatus(StatusConstant.ENABLE);
+        List<DishVO> list = dishService.listWithFlavor(dish);
+        return Result.success(list);
     }
 }
