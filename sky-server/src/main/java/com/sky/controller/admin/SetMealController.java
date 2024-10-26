@@ -38,6 +38,4 @@ public class SetMealController {
         setMealService.save(setmealDTO);
         return Result.success();
     }
-
-
 }

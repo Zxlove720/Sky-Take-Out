@@ -56,6 +56,7 @@ public class SetMealServiceImpl implements SetMealService {
         // 因为有AOP编程，所以说不需要再为setmeal对象补充属性了
         // 直接调用Mapper中的方法添加新的套餐在数据库中
         setMealMapper.insert(setmeal);
+
     }
 
 
