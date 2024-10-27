@@ -7,6 +7,7 @@ import com.sky.mapper.SetMealMapper;
 import com.sky.mapper.SetmealDishMapper;
 import com.sky.service.SetMealService;
 import com.sky.vo.DishItemVO;
+import com.sky.vo.SetmealVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,4 +81,17 @@ public class SetMealServiceImpl implements SetMealService {
         // 批量保存套餐和菜品的关联关系
         setmealDishMapper.insertBatch(setmealDishs);
     }
+
+    /**
+     * 根据id查询套餐
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public SetmealVO getById(Long id) {
+        return setMealMapper.getById(id);
+    }
+
+
 }

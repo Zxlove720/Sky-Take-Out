@@ -5,6 +5,7 @@ import com.sky.dto.SetmealDTO;
 import com.sky.entity.Setmeal;
 import com.sky.enumeration.OperationType;
 import com.sky.vo.DishItemVO;
+import com.sky.vo.SetmealVO;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -13,6 +14,15 @@ import java.util.List;
 
 @Mapper
 public interface SetMealMapper {
+
+    /**
+     * 根据id查询套餐
+     *
+     * @param id
+     * @return
+     */
+    @Select("select * from setmeal where id = #{id}")
+    SetmealVO getById(Long id);
 
     /**
      * 查询对应分类关联的套餐数量
@@ -59,4 +69,6 @@ public interface SetMealMapper {
     // keyProperty="id"：指定将数据库生成的键值赋值给传入参数对象的id属性，这样才能将自增的id给setmeal对象
     @AutoFill(value = OperationType.INSERT)
     void insert(Setmeal setmeal);
+
+
 }
