@@ -2,10 +2,13 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.constant.MessageConstant;
+import com.sky.constant.StatusConstant;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
+import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.SetMealMapper;
 import com.sky.mapper.SetmealDishMapper;
 import com.sky.result.PageResult;
@@ -93,7 +96,7 @@ public class SetMealServiceImpl implements SetMealService {
      * @return
      */
     @Override
-    public SetmealVO getById(Long id) {
+    public Setmeal getById(Long id) {
         return setMealMapper.getById(id);
     }
 
@@ -115,5 +118,27 @@ public class SetMealServiceImpl implements SetMealService {
         List<SetmealVO> result = pages.getResult();
         // 封装成PageResult对象返回Controller层响应
         return new PageResult(total, result);
+    }
+
+    /**
+     * 批量删除套餐
+     *
+     * @param ids
+     */
+    @Override
+    public void deleteBatch(List<Long> ids) {
+        // 判断当前套餐的id，是否为起售，若该套餐起售了，则无法删除
+        for (Long id : ids) {
+            Setmeal setmeal = setMealMapper.getById(id);
+            if (id.equals(StatusConstant.DISABLE)) {
+                // 假如当前套餐是起售状态，那么无法删除，直接抛出异常
+                throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
+            }
+            // 假如当前套餐没有起售，那么可以删除
+            // 先删除套餐表中的套餐
+            setMealMapper.delete(id);
+            // 再删除套餐关联的菜品信息
+            setmealDishMapper.delete(id);
+        }
     }
 }

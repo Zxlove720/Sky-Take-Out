@@ -8,6 +8,7 @@ import com.sky.entity.Setmeal;
 import com.sky.enumeration.OperationType;
 import com.sky.vo.DishItemVO;
 import com.sky.vo.SetmealVO;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -24,7 +25,7 @@ public interface SetMealMapper {
      * @return
      */
     @Select("select * from setmeal where id = #{id}")
-    SetmealVO getById(Long id);
+    Setmeal getById(Long id);
 
     /**
      * 查询对应分类关联的套餐数量
@@ -82,4 +83,12 @@ public interface SetMealMapper {
     // 本来可以直接使用@Select注解，但是因为要支持模糊匹配，所以说必须使用XML配置SQL，实现动态SQL
     // 并且这里还需要实现多表联查，不但需要查询setmeal表，还需要根据category_id查询category表，得到对应的分类
     Page<SetmealVO> pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
+
+    /**
+     * 根据id删除套餐
+     *
+     * @param id
+     */
+    @Delete("delete from setmeal where id = #{id}")
+    void delete(Long id);
 }

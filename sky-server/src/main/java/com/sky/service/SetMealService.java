@@ -39,7 +39,7 @@ public interface SetMealService {
      * @param id
      * @return
      */
-    SetmealVO getById(Long id);
+    Setmeal getById(Long id);
 
     /**
      * 套餐分页查询
@@ -48,4 +48,11 @@ public interface SetMealService {
      * @return
      */
     PageResult pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
+
+    /**
+     * 批量删除套餐
+     *
+     * @param ids
+     */
+    void deleteBatch(List<Long> ids);
 }

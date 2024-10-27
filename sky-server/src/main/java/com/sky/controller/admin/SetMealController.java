@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/admin/setmeal")
 @Slf4j
@@ -48,9 +50,9 @@ public class SetMealController {
      */
     @GetMapping("/{id}")
     @ApiOperation("根据id查询套餐")
-    public Result<SetmealVO> getById(@PathVariable Long id) {
-        SetmealVO setmealVO = setMealService.getById(id);
-        return Result.success(setmealVO);
+    public Result<Setmeal> getById(@PathVariable Long id) {
+        Setmeal setmeal = setMealService.getById(id);
+        return Result.success(setmeal);
     }
 
     /**
@@ -68,5 +70,18 @@ public class SetMealController {
         PageResult pageResult = setMealService.pageQuery(setmealPageQueryDTO);
         // 响应结果
         return Result.success(pageResult);
+    }
+
+    /**
+     * 批量删除套餐
+     *
+     * @param ids
+     * @return
+     */
+    @DeleteMapping
+    @ApiOperation("批量删除套餐")
+    public Result delete(@RequestParam List<Long> ids) {
+        setMealService.deleteBatch(ids);
+        return Result.success();
     }
 }
