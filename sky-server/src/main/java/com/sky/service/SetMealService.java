@@ -55,4 +55,11 @@ public interface SetMealService {
      * @param ids
      */
     void deleteBatch(List<Long> ids);
+
+    /**
+     * 更新套餐信息
+     *
+     * @param setmealDTO
+     */
+    void update(SetmealDTO setmealDTO);
 }

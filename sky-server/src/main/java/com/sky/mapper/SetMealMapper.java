@@ -91,4 +91,13 @@ public interface SetMealMapper {
      */
     @Delete("delete from setmeal where id = #{id}")
     void delete(Long id);
+
+    /**
+     * 修改套餐信息
+     *
+     * @param setmeal
+     */
+    // 添加注解，完成自动补充属性
+    @AutoFill(value = OperationType.UPDATE)
+    void update(Setmeal setmeal);
 }

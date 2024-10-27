@@ -43,7 +43,7 @@ public class SetMealController {
     }
 
     /**
-     * 根据id查询套餐
+     * 根据id查询套餐，用于修改页面回显数据
      *
      * @param id
      * @return
@@ -82,6 +82,20 @@ public class SetMealController {
     @ApiOperation("批量删除套餐")
     public Result delete(@RequestParam List<Long> ids) {
         setMealService.deleteBatch(ids);
+        return Result.success();
+    }
+
+    /**
+     * 更新套餐信息
+     *
+     * @param setmealDTO
+     * @return
+     */
+    @PutMapping
+    @ApiOperation("更新套餐信息")
+    public Result update(@RequestBody SetmealDTO setmealDTO) {
+        log.info("更新套餐信息：{}", setmealDTO);
+        setMealService.update(setmealDTO);
         return Result.success();
     }
 }
