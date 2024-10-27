@@ -1,10 +1,14 @@
 package com.sky.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.sky.dto.SetmealDTO;
+import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
 import com.sky.mapper.SetMealMapper;
 import com.sky.mapper.SetmealDishMapper;
+import com.sky.result.PageResult;
 import com.sky.service.SetMealService;
 import com.sky.vo.DishItemVO;
 import com.sky.vo.SetmealVO;
@@ -93,5 +97,23 @@ public class SetMealServiceImpl implements SetMealService {
         return setMealMapper.getById(id);
     }
 
-
+    /**
+     * 套餐分页查询
+     *
+     * @param setmealPageQueryDTO
+     * @return
+     */
+    @Override
+    public PageResult pageQuery(SetmealPageQueryDTO setmealPageQueryDTO) {
+        // 使用PageHelper插件，便捷实现分页查询
+        PageHelper.startPage(setmealPageQueryDTO.getPage(), setmealPageQueryDTO.getPageSize());
+        // 调用Mapper中的方法进行分页查询
+        Page<SetmealVO> pages = setMealMapper.pageQuery(setmealPageQueryDTO);
+        // 获取分页查询的总页数
+        Long total = pages.getTotal();
+        // 获取分页查询的结果
+        List<SetmealVO> result = pages.getResult();
+        // 封装成PageResult对象返回Controller层响应
+        return new PageResult(total, result);
+    }
 }

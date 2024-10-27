@@ -1,7 +1,9 @@
 package com.sky.mapper;
 
+import com.github.pagehelper.Page;
 import com.sky.annotation.AutoFill;
 import com.sky.dto.SetmealDTO;
+import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.entity.Setmeal;
 import com.sky.enumeration.OperationType;
 import com.sky.vo.DishItemVO;
@@ -71,4 +73,13 @@ public interface SetMealMapper {
     void insert(Setmeal setmeal);
 
 
+    /**
+     * 套餐分页查询
+     *
+     * @param setmealPageQueryDTO
+     * @return
+     */
+    // 本来可以直接使用@Select注解，但是因为要支持模糊匹配，所以说必须使用XML配置SQL，实现动态SQL
+    // 并且这里还需要实现多表联查，不但需要查询setmeal表，还需要根据category_id查询category表，得到对应的分类
+    Page<SetmealVO> pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
 }
