@@ -6,9 +6,12 @@ import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
+import com.sky.entity.Dish;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
 import com.sky.exception.DeletionNotAllowedException;
+import com.sky.exception.SetmealEnableFailedException;
+import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetMealMapper;
 import com.sky.mapper.SetmealDishMapper;
 import com.sky.result.PageResult;
@@ -32,6 +35,8 @@ public class SetMealServiceImpl implements SetMealService {
 
     @Autowired
     private SetmealDishMapper setmealDishMapper;
+    @Autowired
+    private DishMapper dishMapper;
 
     /**
      * 根据菜品分类id查询套餐
@@ -171,5 +176,37 @@ public class SetMealServiceImpl implements SetMealService {
         });
         // 重新插入套餐和菜品的关系
         setmealDishMapper.insertBatch(setmealDishes);
+    }
+
+    /**
+     * 套餐起售停售
+     *
+     * @param status
+     * @param id
+     */
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        // 起售套餐的时候，必须先判断其中是否有已经停售的菜品，若存在已经停售的菜品，那么抛出异常并提示
+        if (status.equals(StatusConstant.ENABLE)) {
+            // 查询当前id对应的套餐下包含的菜品
+            List<Dish> dishList = dishMapper.getBySetmealId(id);
+            if (dishList != null && !dishList.isEmpty()) {
+                // 判断当前套餐下菜品不为空才进行下一步操作
+                dishList.forEach(new Consumer<Dish>() {
+                    @Override
+                    public void accept(Dish dish) {
+                        if (dish.getStatus().equals(StatusConstant.DISABLE)) {
+                            // 假如该套餐下的某个菜品是停售状态，那么该套餐无法起售，抛出异常
+                            throw new SetmealEnableFailedException(MessageConstant.SETMEAL_ENABLE_FAILED);
+                        }
+                    }
+                });
+            }
+        }
+        Setmeal setmeal = Setmeal.builder()
+        .id(id)
+        .status(status)
+        .build();
+        setMealMapper.update(setmeal);
     }
 }

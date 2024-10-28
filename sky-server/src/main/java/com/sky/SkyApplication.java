@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableCaching
 // 在SpringBoot项目中，使用SpringCache只需要在项目中导入相关缓存技术的依赖，并且在启动类上添加@EnableCache注解
 // 假如在本项目中用Redis作为缓存技术实现，只需要导入Spring data Redis的maven坐标即可，这就是Spring的便捷之处
+// TODO 当开发完成之后，为了开发规范，建议为每一个文档注释补全
 public class SkyApplication {
     public static void main(String[] args) {
         SpringApplication.run(SkyApplication.class, args);
