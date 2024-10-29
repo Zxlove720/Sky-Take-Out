@@ -106,4 +106,27 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public void cleanShoppingCart() {
         shoppingCartMapper.deleteByUerId(BaseContext.getCurrentId());
     }
+
+    /**
+     * 减少购物车中的商品
+     *
+     * @param shoppingCartDTO
+     */
+    @Override
+    public void subShoppingCart(ShoppingCartDTO shoppingCartDTO) {
+        // 将DTO对象封装成对应的实体对象，只需要为其封装用户id即可
+        ShoppingCart shoppingCart = new ShoppingCart();
+        BeanUtils.copyProperties(shoppingCartDTO, shoppingCart);
+        // 获取用户的id
+        Long id = BaseContext.getCurrentId();
+        // 为当前ShoppingCart对象封装用户的id
+        shoppingCart.setUserId(id);
+        List<ShoppingCart> shoppingCartList = shoppingCartMapper.list(shoppingCart);
+        // 因为是减少购物车中的物品，所以说当前的菜品或套餐肯定是存在的，可以直接减少
+        // 得到这次的减少请求的结果（因为每次减少购物车都是一次单独请求，每次集合中都有且只有1个元素）
+        // 取得这次减少请求对应的菜品或套餐，然后对其进行减少操作
+        shoppingCart = shoppingCartList.get(0);
+        shoppingCart.setNumber(shoppingCart.getNumber() - 1);
+        shoppingCartMapper.updateNumberById(shoppingCart);
+    }
 }

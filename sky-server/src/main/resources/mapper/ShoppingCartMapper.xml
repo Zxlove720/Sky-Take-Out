@@ -17,6 +17,7 @@
             <if test="dishFlavor != null">
                 and dish_flavor = #{dishFlavor}
             </if>
+            and number != 0
         </where>
         order by create_time desc
     </select>
