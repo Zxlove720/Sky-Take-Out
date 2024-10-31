@@ -92,4 +92,11 @@ public class AddressBookController {
         return Result.success();
     }
 
+    @DeleteMapping
+    @ApiOperation("根据地址id删除地址")
+    public Result deleteById(Long id) {
+        addressBookService.deleteById(id);
+        return Result.success();
+    }
+
 }
