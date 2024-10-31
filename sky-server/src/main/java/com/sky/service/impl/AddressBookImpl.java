@@ -2,7 +2,7 @@ package com.sky.service.impl;
 
 import com.sky.context.BaseContext;
 import com.sky.entity.AddressBook;
-import com.sky.mapper.AddressMapper;
+import com.sky.mapper.AddressBookMapper;
 import com.sky.service.AddressBookService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ import java.util.List;
 public class AddressBookImpl implements AddressBookService {
 
     @Autowired
-    private AddressMapper addressMapper;
+    private AddressBookMapper addressBookMapper;
 
     /**
      * 查询当前登录用户的所有地址
@@ -26,7 +26,7 @@ public class AddressBookImpl implements AddressBookService {
      */
     @Override
     public List<AddressBook> list(AddressBook addressBook) {
-        return addressMapper.list(addressBook);
+        return addressBookMapper.list(addressBook);
     }
 
     /**
@@ -41,7 +41,7 @@ public class AddressBookImpl implements AddressBookService {
         addressBook.setUserId(userId);
         // 是否是默认地址（新地址默认不是默认地址）
         addressBook.setIsDefault(0);
-        addressMapper.insert(addressBook);
+        addressBookMapper.insert(addressBook);
     }
 
     /**
@@ -52,6 +52,16 @@ public class AddressBookImpl implements AddressBookService {
      */
     @Override
     public AddressBook getById(Long id) {
-        return addressMapper.getById(id);
+        return addressBookMapper.getById(id);
+    }
+
+    /**
+     * 根据地址id修改地址
+     *
+     * @param addressBook
+     */
+    @Override
+    public void update(AddressBook addressBook) {
+        addressBookMapper.update(addressBook);
     }
 }

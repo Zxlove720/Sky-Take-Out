@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
 @Mapper
-public interface AddressMapper {
+public interface AddressBookMapper {
 
     /**
      * 查询当前登录用户的所有地址
@@ -37,4 +37,11 @@ public interface AddressMapper {
      */
     @Select("select * from address_book where id = #{id}")
     AddressBook getById(Long id);
+
+    /**
+     * 根据地址id修改地址
+     *
+     * @param addressBook
+     */
+    void update(AddressBook addressBook);
 }
