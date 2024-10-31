@@ -35,4 +35,11 @@ public interface AddressBookService {
      * @param addressBook
      */
     void update(AddressBook addressBook);
+
+    /**
+     * 将一个地址设置为默认地址
+     *
+     * @param addressBook
+     */
+    void setDefault(AddressBook addressBook);
 }
