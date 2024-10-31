@@ -14,4 +14,10 @@ public interface AddressBookService {
      */
     List<AddressBook> list(AddressBook addressBook);
 
+    /**
+     * 在地址簿中新增地址
+     *
+     * @param addressBook
+     */
+    void save(AddressBook addressBook);
 }

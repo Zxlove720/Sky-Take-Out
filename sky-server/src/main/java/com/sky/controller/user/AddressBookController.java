@@ -7,9 +7,7 @@ import com.sky.service.AddressBookService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -39,6 +37,20 @@ public class AddressBookController {
         addressBook.setUserId(BaseContext.getCurrentId());
         List<AddressBook> list = addressBookService.list(addressBook);
         return Result.success(list);
+    }
+
+    /**
+     * 在地址簿中新增地址
+     *
+     * @param addressBook
+     * @return
+     */
+    @PostMapping
+    @ApiOperation("新增地址")
+    public Result save(@RequestBody AddressBook addressBook) {
+        // 前端请求会携带json数据，只需要将AddressBook对象给Service处理即可
+        addressBookService.save(addressBook);
+        return Result.success();
     }
 
 }
