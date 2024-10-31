@@ -49,4 +49,11 @@ public interface AddressBookService {
      * @param id
      */
     void deleteById(Long id);
+
+    /**
+     * 查询默认地址
+     *
+     * @return
+     */
+    AddressBook getDefault();
 }

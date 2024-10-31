@@ -1,5 +1,6 @@
 package com.sky.controller.user;
 
+import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
 import com.sky.entity.AddressBook;
 import com.sky.result.Result;
@@ -92,11 +93,31 @@ public class AddressBookController {
         return Result.success();
     }
 
+    /**
+     * 根据地址id删除地址
+     * @param id
+     * @return
+     */
     @DeleteMapping
     @ApiOperation("根据地址id删除地址")
     public Result deleteById(Long id) {
         addressBookService.deleteById(id);
         return Result.success();
+    }
+
+    /**
+     * 查询默认地址
+     *
+     * @return
+     */
+    @GetMapping("default")
+    @ApiOperation("查询默认地址")
+    public Result<AddressBook> getDefault() {
+        AddressBook addressBook = addressBookService.getDefault();
+        if (addressBook == null) {
+            return Result.error(MessageConstant.DEFAULT_ADDRESS_NOT_FOUND);
+        }
+        return Result.success(addressBook);
     }
 
 }
