@@ -60,7 +60,7 @@ public class OrderServiceImpl implements OrderService {
 
         // 查询当前提交用户的购物车数据
         List<ShoppingCart> shoppingCartList = shoppingCartMapper.list(shoppingCart);
-        if (shoppingCartList == null || !shoppingCartList.isEmpty()) {
+        if (shoppingCartList == null || shoppingCartList.isEmpty()) {
             // 若当前提交订单的用户的购物车为null或没有商品，那么肯定是无法正常提交订单的，抛出购物车为空异常
             throw new ShoppingCartBusinessException(MessageConstant.SHOPPING_CART_IS_NULL);
         }
