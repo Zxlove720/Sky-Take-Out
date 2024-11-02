@@ -1,8 +1,11 @@
 package com.sky.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
+import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
 import com.sky.entity.*;
@@ -10,10 +13,12 @@ import com.sky.exception.AddressBookBusinessException;
 import com.sky.exception.OrderBusinessException;
 import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.*;
+import com.sky.result.PageResult;
 import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
+import com.sky.vo.OrderVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -170,5 +175,39 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         orderMapper.update(orders);
+    }
+
+    /**
+     * 历史订单查询
+     *
+     * @param ordersPageQueryDTO@return
+     */
+    @Override
+    public PageResult pageQuery(OrdersPageQueryDTO ordersPageQueryDTO) {
+        // 使用PageHelper分页插件
+        PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
+
+        Page<Orders> page = orderMapper.pageQuery(ordersPageQueryDTO);
+        // 创建一个集合用于存储订单
+        List<OrderVO> list = new ArrayList<>();
+        // 查询订单的明细，并封装为OrderVO对象进行响应
+        if (page != null && page.getTotal() > 0) {
+            // 说明这个用户是有历史订单的
+            for (Orders orders : page) {
+                // 获取订单id
+                Long orderId = orders.getId();
+                // 查询订单明细
+                List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(orderId);
+                // 创建OrderVO对象
+                OrderVO orderVO = new OrderVO();
+                // 将orders中的属性拷贝给VO对象
+                BeanUtils.copyProperties(orders, orderVO);
+                orderVO.setOrderDetailList(orderDetailList);
+                list.add(orderVO);
+            }
+        }
+        System.out.println("你好你好" + list);
+        return new PageResult(page.getTotal(), list);
+
     }
 }
