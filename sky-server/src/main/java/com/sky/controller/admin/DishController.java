@@ -98,7 +98,7 @@ public class DishController {
         // 删除了菜品之后，需要清除其缓存数据
         // 因为前端传递的请求只有需要删除的菜品的id的集合，但是redis中缓存的是dish_ + "菜品对应的分类id"，所以说不方便拼接
         // 键，所以说为了方便，每当删除菜品时，直接将redis中缓存的菜品全部删除（也就是删除redis中全部dish_开头的键）
-        cleanCache("dish_*");
+        cleanCache("*dish_*");
         return Result.success();
     }
 
@@ -132,7 +132,7 @@ public class DishController {
         // 直接使用模糊匹配，删除所有键
 //        String key = "dish_" + dishDTO.getCategoryId();
 //        cleanCache(key);
-        cleanCache("dish_*");
+        cleanCache("*dish_*");
         return Result.success();
     }
 

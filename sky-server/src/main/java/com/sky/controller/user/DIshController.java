@@ -32,8 +32,10 @@ import java.util.List;
 @Slf4j
 @Api(tags = "客户端-菜品浏览接口")
 public class DIshController {
+
     @Autowired
     private DishService dishService;
+
     // 自动注入redis操作工具
     @Autowired
     private RedisTemplate redisTemplate;
