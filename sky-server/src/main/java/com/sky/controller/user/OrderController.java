@@ -81,6 +81,9 @@ public class OrderController {
 
         // 封装成OrderPageQueryDTO对象，方便查询
         OrdersPageQueryDTO ordersPageQueryDTO = new OrdersPageQueryDTO();
+        // TODO封装对象的时候，必须特别仔细，必须特别仔细；不然很难发现错误！！！
+        ordersPageQueryDTO.setPage(page);
+        ordersPageQueryDTO.setPageSize(pageSize);
         ordersPageQueryDTO.setUserId(BaseContext.getCurrentId());
         ordersPageQueryDTO.setStatus(status);
 

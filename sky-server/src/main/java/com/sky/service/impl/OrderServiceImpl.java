@@ -206,7 +206,6 @@ public class OrderServiceImpl implements OrderService {
                 list.add(orderVO);
             }
         }
-        System.out.println("你好你好" + list);
         return new PageResult(page.getTotal(), list);
 
     }
