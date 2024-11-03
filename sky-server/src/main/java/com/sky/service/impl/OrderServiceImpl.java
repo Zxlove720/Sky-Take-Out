@@ -228,4 +228,44 @@ public class OrderServiceImpl implements OrderService {
         orderVO.setOrderDetailList(orderDetailList);
         return orderVO;
     }
+
+    /**
+     * 用户取消订单
+     *
+     * @param id
+     */
+    @Override
+    public void userCancelById(Long id) throws Exception{
+        // 先根据id查询订单
+        Orders orderDelete = orderMapper.getById(id);
+        // 检验该订单是否存在
+        if (orderDelete == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        // 查询订单状态 1.待付款 2.待接单 3.已接单 4.派送中 5.已完成 6.已取消
+        if (orderDelete.getStatus() > 2) {
+            // 只能在待付款或者待接单的状态下进行取消订单的操作
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        Orders orders = new Orders();
+        orders.setId(orderDelete.getId());
+
+        // 若订单处于待接单的状态下取消，那么不能直接删除，需要先退款，然后再进行删除
+        if (orderDelete.getStatus().equals(Orders.TO_BE_CONFIRMED)) {
+            // 调用微信支付的退款接口
+            weChatPayUtil.refund(
+                    orderDelete.getNumber(), // 获取商品订单号
+                    orderDelete.getNumber(), // 获取商品退款单号
+                    orderDelete.getAmount(), // 退款金额，单位：元
+                   orderDelete.getAmount()); // 原订单金额，单位：元
+        }
+        // 修改订单支付状态：退款
+        orders.setPayStatus(Orders.REFUND);
+        // 更新订单状态、取消原因、取消时间
+        orders.setStatus(Orders.CANCELLED);
+        orders.setCancelReason(MessageConstant.USER_CANCEL_ORDER);
+        orders.setCancelTime(LocalDateTime.now());
+        orderMapper.update(orders);
+    }
 }
