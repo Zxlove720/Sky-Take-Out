@@ -5,10 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
-import com.sky.dto.OrdersConfirmDTO;
-import com.sky.dto.OrdersPageQueryDTO;
-import com.sky.dto.OrdersPaymentDTO;
-import com.sky.dto.OrdersSubmitDTO;
+import com.sky.dto.*;
 import com.sky.entity.*;
 import com.sky.exception.AddressBookBusinessException;
 import com.sky.exception.OrderBusinessException;
@@ -21,6 +18,7 @@ import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class OrderServiceImpl implements OrderService {
 
     @Autowired
@@ -394,5 +393,47 @@ public class OrderServiceImpl implements OrderService {
                 .status(Orders.CONFIRMED)
                 .build();
         orderMapper.update(orders);
+    }
+
+    /**
+     * 拒单
+     *
+     * @param ordersRejectionDTO
+     */
+    @Override
+    public void rejection(OrdersRejectionDTO ordersRejectionDTO) throws Exception{
+        // 根据id查询订单
+        Orders ordersDelete = orderMapper.getById(ordersRejectionDTO.getId());
+        // 当订单存在并且状态为2（待接单）才可以拒单
+        if (ordersDelete == null) {
+            // 若订单为null，那么无法拒单，抛出异常
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        if (!ordersDelete.getStatus().equals(Orders.TO_BE_CONFIRMED)) {
+            // 若订单状态不是待接单，那么也无法拒单，抛出异常
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        // 查询支付状态，若已支付，那么需要退款
+        Integer payStatus = ordersDelete.getPayStatus();
+        if (payStatus.equals(Orders.PAID)) {
+            //用户已支付，需要退款
+            String refund = weChatPayUtil.refund(
+                    ordersDelete.getNumber(),
+                    ordersDelete.getNumber(),
+                    new BigDecimal(String.valueOf(ordersDelete.getAmount())),
+                    new BigDecimal(String.valueOf(ordersDelete.getAmount())));
+            log.info("申请退款：{}", refund);
+        }
+
+        // 拒单需要退款，根据订单id更新订单状态、拒单原因、取消时间
+        Orders orders = new Orders();
+        orders.setId(ordersDelete.getId());
+        orders.setStatus(Orders.CANCELLED);
+        orders.setRejectionReason(ordersRejectionDTO.getRejectionReason());
+        orders.setCancelTime(LocalDateTime.now());
+
+        orderMapper.update(orders);
+
     }
 }
