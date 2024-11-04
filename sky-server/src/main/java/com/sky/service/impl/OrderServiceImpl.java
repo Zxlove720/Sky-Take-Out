@@ -26,7 +26,9 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -219,7 +221,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderVO selectDetails(Long id) {
         // 根据id查询订单
-        Orders order = new Orders();
+        Orders order = orderMapper.getById(id);
         // 根据该订单的id查询对应的明细
         List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(order.getId());
         // 将订单明细封装为OrderVO返回
@@ -267,5 +269,31 @@ public class OrderServiceImpl implements OrderService {
         orders.setCancelReason(MessageConstant.USER_CANCEL_ORDER);
         orders.setCancelTime(LocalDateTime.now());
         orderMapper.update(orders);
+    }
+
+    /**
+     * 再来一单
+     *
+     * @param id
+     */
+    @Override
+    public void repetition(Long id) {
+        // 查询当前用户id
+        Long userId = BaseContext.getCurrentId();
+        // 根据订单id查询当前订单详情
+        List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(id);
+        // 将订单详情对象转换为购物车对象
+        // 这里的实现是使用stream流遍历OrderDetail集合中的每一个OrderDetail对象
+        // map方法接收一个方法作为参数，这个方法实现了将集合中的元素按照方法逻辑变化，此处还使用了lambda表达式
+        List<ShoppingCart> shoppingCartList = orderDetailList.stream().map(x -> {
+            ShoppingCart shoppingCart = new ShoppingCart();
+            // 将原订单详情中的菜品信息复制到购物车对象中
+            BeanUtils.copyProperties(x, shoppingCart, "id"); // 拷贝属性，但是忽略id（购物车和菜品详细的id是不同的）
+            shoppingCart.setUserId(userId);
+            shoppingCart.setCreateTime(LocalDateTime.now());
+            return shoppingCart;
+        }).collect(Collectors.toList());
+        // 将购物车对象批量添加到数据库中
+        shoppingCartMapper.insertBatch(shoppingCartList);
     }
 }
