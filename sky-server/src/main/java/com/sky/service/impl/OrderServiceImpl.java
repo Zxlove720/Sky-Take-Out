@@ -418,26 +418,26 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void rejection(OrdersRejectionDTO ordersRejectionDTO) throws Exception{
         // 根据id查询订单
-        Orders ordersDelete = orderMapper.getById(ordersRejectionDTO.getId());
+        Orders ordersDB = orderMapper.getById(ordersRejectionDTO.getId());
         // 当订单存在并且状态为2（待接单）才可以拒单
-        if (ordersDelete == null) {
+        if (ordersDB == null) {
             // 若订单为null，那么无法拒单，抛出异常
             throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
         }
-        if (!ordersDelete.getStatus().equals(Orders.TO_BE_CONFIRMED)) {
+        if (!ordersDB.getStatus().equals(Orders.TO_BE_CONFIRMED)) {
             // 若订单状态不是待接单，那么也无法拒单，抛出异常
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
 
         // 查询支付状态，若已支付，那么需要退款
-        Integer payStatus = ordersDelete.getPayStatus();
+        Integer payStatus = ordersDB.getPayStatus();
         if (payStatus.equals(Orders.PAID)) {
             //用户已支付，需要退款
-            refund(ordersDelete);
+            refund(ordersDB);
         }
         // 拒单需要退款，根据订单id更新订单状态、拒单原因、取消时间
         Orders orders = new Orders();
-        orders.setId(ordersDelete.getId());
+        orders.setId(ordersDB.getId());
         orders.setStatus(Orders.CANCELLED);
         orders.setRejectionReason(ordersRejectionDTO.getRejectionReason());
         orders.setCancelTime(LocalDateTime.now());
@@ -452,12 +452,12 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void cancel(OrdersCancelDTO ordersCancelDTO) throws Exception {
         // 根据id查询需要取消的订单
-        Orders ordersDelete = orderMapper.getById(ordersCancelDTO.getId());
+        Orders ordersDB = orderMapper.getById(ordersCancelDTO.getId());
         // 查询支付状态判断是否应该退款
-        Integer payStatus = ordersDelete.getPayStatus();
+        Integer payStatus = ordersDB.getPayStatus();
         if (payStatus.equals(Orders.PAID)) {
             //用户已支付，需要退款
-            refund(ordersDelete);
+            refund(ordersDB);
         }
 
         // 管理端取消订单需要退款，根据订单id更新订单状态、取消原因、取消时间
@@ -472,6 +472,34 @@ public class OrderServiceImpl implements OrderService {
         // 修改订单取消时间
         orders.setCancelTime(LocalDateTime.now());
         // 在数据库中完成修改
+        orderMapper.update(orders);
+    }
+
+    /**
+     * 派送订单
+     *
+     * @param id
+     */
+    @Override
+    public void delivery(Long id) {
+        // 根据id查询订单
+        Orders orderDB = orderMapper.getById(id);
+
+        // 校验订单是否存在，并且状态是已接单（3）
+        if (orderDB == null) {
+            // 若订单不存在，抛出订单不存在异常
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        if (!orderDB.getStatus().equals(Orders.CONFIRMED)) {
+            // 若订单状态不是已接单，抛出订单状态异常
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        Orders orders = new Orders();
+        orders.setId(orderDB.getId());
+        // 更新订单状态，将订单状态变为派送中
+        orders.setStatus(Orders.DELIVERY_IN_PROGRESS);
+        // 更新数据库
         orderMapper.update(orders);
     }
 }
