@@ -1,6 +1,7 @@
 package com.sky.controller.admin;
 
 
+import com.sky.dto.OrdersCancelDTO;
 import com.sky.dto.OrdersConfirmDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersRejectionDTO;
@@ -89,6 +90,24 @@ public class OrderController {
     @ApiOperation("拒单")
     public Result rejection(@RequestBody OrdersRejectionDTO ordersRejectionDTO) throws Exception {
         orderService.rejection(ordersRejectionDTO);
+        return Result.success();
+    }
+
+    // 取消订单
+    // 取消订单逻辑：
+    // 1.商家需要将订单状态修改为“已取消”
+    // 2.商家取消订单时需要指定取消原因
+    // 3.商家取消订单时，若用户已经完成了支付，那么需要为用户退款
+    /**
+     * 取消订单
+     *
+     * @param ordersCancelDTO
+     * @return
+     */
+    @PutMapping("/cancel")
+    @ApiOperation("取消订单")
+    public Result cancel(@RequestBody OrdersCancelDTO ordersCancelDTO) throws Exception {
+        orderService.cancel(ordersCancelDTO);
         return Result.success();
     }
 

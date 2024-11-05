@@ -27,7 +27,6 @@ import org.springframework.util.CollectionUtils;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -396,6 +395,22 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
+     * 抽取出来的退款方法
+     *
+     * @param ordersDelete
+     * @throws Exception
+     */
+    // TODO 这个退款方法不应该放在此处，应该在util中
+    public void refund(Orders ordersDelete) throws Exception {
+            String refund = weChatPayUtil.refund(
+                    ordersDelete.getNumber(),
+                    ordersDelete.getNumber(),
+                    new BigDecimal(String.valueOf(ordersDelete.getAmount())),
+                    new BigDecimal(String.valueOf(ordersDelete.getAmount())));
+            log.info("申请退款：{}", refund);
+    }
+
+    /**
      * 拒单
      *
      * @param ordersRejectionDTO
@@ -418,22 +433,45 @@ public class OrderServiceImpl implements OrderService {
         Integer payStatus = ordersDelete.getPayStatus();
         if (payStatus.equals(Orders.PAID)) {
             //用户已支付，需要退款
-            String refund = weChatPayUtil.refund(
-                    ordersDelete.getNumber(),
-                    ordersDelete.getNumber(),
-                    new BigDecimal(String.valueOf(ordersDelete.getAmount())),
-                    new BigDecimal(String.valueOf(ordersDelete.getAmount())));
-            log.info("申请退款：{}", refund);
+            refund(ordersDelete);
         }
-
         // 拒单需要退款，根据订单id更新订单状态、拒单原因、取消时间
         Orders orders = new Orders();
         orders.setId(ordersDelete.getId());
         orders.setStatus(Orders.CANCELLED);
         orders.setRejectionReason(ordersRejectionDTO.getRejectionReason());
         orders.setCancelTime(LocalDateTime.now());
-
         orderMapper.update(orders);
+    }
 
+    /**
+     * 取消订单
+     *
+     * @param ordersCancelDTO
+     */
+    @Override
+    public void cancel(OrdersCancelDTO ordersCancelDTO) throws Exception {
+        // 根据id查询需要取消的订单
+        Orders ordersDelete = orderMapper.getById(ordersCancelDTO.getId());
+        // 查询支付状态判断是否应该退款
+        Integer payStatus = ordersDelete.getPayStatus();
+        if (payStatus.equals(Orders.PAID)) {
+            //用户已支付，需要退款
+            refund(ordersDelete);
+        }
+
+        // 管理端取消订单需要退款，根据订单id更新订单状态、取消原因、取消时间
+        // 封装一个Orders对象便于mapper操作数据库
+        Orders orders = new Orders();
+        // orderCancelDTO中的id和这个封装的Orders对象是一样的
+        orders.setId(ordersCancelDTO.getId());
+        // 修改订单状态
+        orders.setStatus(Orders.CANCELLED);
+        // 修改订单取消原因
+        orders.setCancelReason(ordersCancelDTO.getCancelReason());
+        // 修改订单取消时间
+        orders.setCancelTime(LocalDateTime.now());
+        // 在数据库中完成修改
+        orderMapper.update(orders);
     }
 }
