@@ -483,23 +483,51 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void delivery(Long id) {
         // 根据id查询订单
-        Orders orderDB = orderMapper.getById(id);
+        Orders ordersDB = orderMapper.getById(id);
 
         // 校验订单是否存在，并且状态是已接单（3）
-        if (orderDB == null) {
+        if (ordersDB == null) {
             // 若订单不存在，抛出订单不存在异常
             throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
         }
-        if (!orderDB.getStatus().equals(Orders.CONFIRMED)) {
+        if (!ordersDB.getStatus().equals(Orders.CONFIRMED)) {
             // 若订单状态不是已接单，抛出订单状态异常
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
 
         Orders orders = new Orders();
-        orders.setId(orderDB.getId());
+        orders.setId(ordersDB.getId());
         // 更新订单状态，将订单状态变为派送中
         orders.setStatus(Orders.DELIVERY_IN_PROGRESS);
         // 更新数据库
+        orderMapper.update(orders);
+    }
+
+    /**
+     * 完成订单
+     *
+     * @param id
+     */
+    @Override
+    public void complete(Long id) {
+        // 根据id查询订单
+        Orders ordersDB = orderMapper.getById(id);
+        // 检验订单是否存在，并且状态为派送中
+        if (ordersDB == null) {
+            // 若订单不存在，抛出订单不存在异常
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        if (!ordersDB.getStatus().equals(Orders.DELIVERY_IN_PROGRESS)) {
+            // 若订单状态不是已接单，抛出订单状态异常
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        Orders orders = new Orders();
+        orders.setId(ordersDB.getId());
+        // 更新订单状态,状态转为完成
+        orders.setStatus(Orders.COMPLETED);
+        orders.setDeliveryTime(LocalDateTime.now());
+
         orderMapper.update(orders);
     }
 }
