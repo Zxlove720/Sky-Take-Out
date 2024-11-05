@@ -137,4 +137,6 @@ public class OrderController {
         return Result.success();
     }
 
+
+    // TODO 以后可以通过百度地图的相关接口实现检验收获地址是否超过配送范围
 }
