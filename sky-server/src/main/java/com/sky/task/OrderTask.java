@@ -1,13 +1,17 @@
 package com.sky.task;
 
 
+import com.sky.constant.MessageConstant;
+import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 
 // SpringTask是Spring框架提供的任务调度工具，可以按照设置的时间自动执行某个代码逻辑
@@ -67,6 +71,24 @@ public class OrderTask {
     @Scheduled(cron = "0 * * * * ?") // 个人理解将其理解为每一个第0s，那么也就是每分钟
     public void processTimeoutOrder() {
         log.info("处理支付超时的订单：{}", new Date());
+        // 设置时间为前15min，这个时间之前的订单若还处于未支付状态，那么就认为是超时订单，需要处理
+        LocalDateTime time = LocalDateTime.now().plusMinutes(-15);
+        List<Orders> ordersList = orderMapper.getByStatusAndOrderTime(Orders.PENDING_PAYMENT, time);
+        // 因为是每天自动进行查询处理，所以说即使没有查询到结果（一般没有结果就是因为没有这种订单）也不需要抛出异常
+        if (ordersList != null && !ordersList.isEmpty()) {
+            // 但是要判断这种“问题订单”非空才进行下一步处理
+            for (Orders orders : ordersList) {
+                // 遍历订单表，处理其中的所有订单
+                // 将订单状态变为取消
+                orders.setStatus(Orders.CANCELLED);
+                // 封装取消原因
+                orders.setCancelReason(MessageConstant.PAY_ORDER_TIMEOUT);
+                // 封装取消时间
+                orders.setCancelTime(LocalDateTime.now());
+                // 更新数据库
+                orderMapper.update(orders);
+            }
+        }
     }
 
     /**
@@ -75,10 +97,18 @@ public class OrderTask {
     @Scheduled(cron = "0 0 1 * * ?") // 在每月每天的1时的0分0秒，也就是在每一天的1时
     public void processDeliveryOrder() {
         log.info("处理派送中的订单：{}", new Date());
+        // 这么写的意思是：需要在打烊后，查找出那些在打烊前2小时提交的，仍然处于派送中的订单，按道理来说这些订单是已经完成了的，但是
+        // 用户没有及时完成，所以说需要自动完成订单
+        LocalDateTime time = LocalDateTime.now().plusHours(-2);
+        List<Orders> ordersList = orderMapper.getByStatusAndOrderTime(Orders.DELIVERY_IN_PROGRESS, time);
+
+        if(ordersList != null && !ordersList.isEmpty()){
+            ordersList.forEach(order -> {
+                // 完成订单
+                order.setStatus(Orders.COMPLETED);
+                // 更新数据库
+                orderMapper.update(order);
+            });
+        }
     }
-
-
-
-
-
 }
