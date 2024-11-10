@@ -6,6 +6,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.Websocket.WebSocketServer;
 import com.sky.constant.MessageConstant;
+import com.sky.constant.WebSocketConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.*;
 import com.sky.entity.*;
@@ -193,7 +194,7 @@ public class OrderServiceImpl implements OrderService {
         // type为消息类型：1.来单提醒     2.客户催单
         // orderId为订单id；content为消息内容
         Map<Object, Object> map = new HashMap<>();
-        map.put("type", 1);
+        map.put("type", WebSocketConstant.NEW_ORDER);
         map.put("orderId", orders.getId());
         map.put("content", "订单号：" + outTradeNo);
 
@@ -551,4 +552,25 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.update(orders);
     }
 
+    /**
+     * 用户催单
+     *
+     * @param id
+     */
+    @Override
+    public void reminder(Long id) {
+        // 查询订单是否存在
+        Orders orders = orderMapper.getById(id);
+        if (orders == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+
+        // 基于WebSocket实现催单
+        Map<Object, Object> map = new HashMap<>();
+        map.put("type", WebSocketConstant.REMINDER);
+        map.put("orderId", id);
+        map.put("content", "订单号：" + orders.getNumber());
+        // 群发
+        webSocketServer.sendToAllClients(JSON.toJSONString(map));
+    }
 }
