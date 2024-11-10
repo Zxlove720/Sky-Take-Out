@@ -1,8 +1,10 @@
 package com.sky.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.Websocket.WebSocketServer;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.*;
@@ -27,7 +29,9 @@ import org.springframework.util.CollectionUtils;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,7 +56,8 @@ public class OrderServiceImpl implements OrderService {
 	@Autowired
     private WeChatPayUtil weChatPayUtil;
 
-
+    @Autowired
+    private WebSocketServer webSocketServer;
 
     /**
      * 提交订单
@@ -180,6 +185,20 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         orderMapper.update(orders);
+
+        // 支付成功后，第一时间通知外卖商家（来单提醒）
+        // 通过WebSocket实现服务端向客户端推送消息（无需请求，这就是WebSocket的优势之一）
+        // 客户端解析服务端推送的消息，判断是来单提送还是客户催单，并进行相应的消息提示和语音播报
+        // 前后端约定，服务端发送的数据格式为json，字段包括：type、orderId、content
+        // type为消息类型：1.来单提醒     2.客户催单
+        // orderId为订单id；content为消息内容
+        Map<Object, Object> map = new HashMap<>();
+        map.put("type", 1);
+        map.put("orderId", orders.getId());
+        map.put("content", "订单号：" + outTradeNo);
+
+        // 通过WebSocket实现来单提醒，向客户端浏览器推送消息
+        webSocketServer.sendToAllClients(JSON.toJSONString(map));
     }
 
     /**
@@ -531,4 +550,5 @@ public class OrderServiceImpl implements OrderService {
         orders.setDeliveryTime(LocalDateTime.now());
         orderMapper.update(orders);
     }
+
 }
