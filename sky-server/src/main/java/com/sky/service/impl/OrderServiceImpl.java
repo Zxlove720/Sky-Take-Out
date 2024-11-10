@@ -52,6 +52,8 @@ public class OrderServiceImpl implements OrderService {
 	@Autowired
     private WeChatPayUtil weChatPayUtil;
 
+
+
     /**
      * 提交订单
      *
@@ -527,7 +529,6 @@ public class OrderServiceImpl implements OrderService {
         // 更新订单状态,状态转为完成
         orders.setStatus(Orders.COMPLETED);
         orders.setDeliveryTime(LocalDateTime.now());
-
         orderMapper.update(orders);
     }
 }
