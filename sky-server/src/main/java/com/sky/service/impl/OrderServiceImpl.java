@@ -486,7 +486,6 @@ public class OrderServiceImpl implements OrderService {
 //     * @param ordersDB
 //     * @throws Exception
 //     */
-//    // TODO 这个退款方法不应该放在此处，应该在util中
 //    public void refund(Orders ordersDB) throws Exception {
 //            String refund = weChatPayUtil.refund(
 //                    ordersDB.getNumber(),
