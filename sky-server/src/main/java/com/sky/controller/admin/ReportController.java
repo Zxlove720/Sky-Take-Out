@@ -35,8 +35,11 @@ public class ReportController {
      * @param end
      * @return
      */
+    // 查询一段时间内的营业额，前端给后端传递开始时间和结束时间，后端需要查询这段时间内的营业额，并封装到VO中、
+    // 约定好VO中封装两个字符串，时间和对应的营业额，用","分隔
     @GetMapping("/turnoverStatistics")
     @ApiOperation("营业额数据统计")
+    // 使用@DateTimeFormat限定前端传递的时间的格式
     public Result<TurnoverReportVO> turnoverStatistics(@DateTimeFormat(pattern = "yyyy-MM-dd")
                                                        LocalDate begin,
                                                        @DateTimeFormat(pattern = "yyyy-MM-dd")
