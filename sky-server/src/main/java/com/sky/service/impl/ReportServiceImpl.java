@@ -1,10 +1,12 @@
 package com.sky.service.impl;
 
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.OrderReportVO;
+import com.sky.vo.SalesTop10ReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +18,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -221,6 +224,36 @@ public class ReportServiceImpl implements ReportService {
         map.put("begin", beginTime);
         map.put("end", endTime);
         return orderMapper.statisticsOrders(map);
+    }
+
+    /**
+     * 根据时间区间统计畅销top10商品
+     *
+     * @param begin
+     * @param end
+     * @return
+     */
+    @Override
+    public SalesTop10ReportVO getSalesTop10Statistics(LocalDate begin, LocalDate end) {
+        // 因为不需要统计每一天的销量，只需要统计在这段时间之内的销量，所以说不需要遍历每一天的销量，可以直接使用begin和end
+        LocalDateTime beginTime = LocalDateTime.of(begin, LocalTime.MIN);
+        LocalDateTime endTime = LocalDateTime.of(end, LocalTime.MAX);
+
+        // 查询销量前10的商品，并封装在GoodsSalesDTO中（商品名和销量）
+        List<GoodsSalesDTO> goodsSalesDTOList = orderMapper.getSalesTop10(beginTime, endTime);
+
+        // 处理goodsSalesDTOList中数据
+        String nameList = StringUtils.join(goodsSalesDTOList.stream().map(GoodsSalesDTO::getName)
+                .collect(Collectors.toList()), ",");
+
+        String numberList = StringUtils.join(goodsSalesDTOList.stream().map(GoodsSalesDTO::getNumber)
+                .collect(Collectors.toList()), ",");
+
+        // 封装成对应的VO返回
+        return SalesTop10ReportVO.builder()
+                .nameList(nameList)
+                .numberList(numberList)
+                .build();
     }
 
 

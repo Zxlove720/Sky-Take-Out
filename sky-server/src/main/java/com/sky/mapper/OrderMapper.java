@@ -1,6 +1,7 @@
 package com.sky.mapper;
 
 import com.github.pagehelper.Page;
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
 import lombok.extern.slf4j.Slf4j;
@@ -88,4 +89,13 @@ public interface OrderMapper {
      * @return
      */
     Integer statisticsOrders(Map<Object, Object> map);
+
+    /**
+     * 根据时间区间查询销量top10商品（菜品和套餐）
+     *
+     * @param begin
+     * @param end
+     * @return
+     */
+    List<GoodsSalesDTO> getSalesTop10(LocalDateTime begin, LocalDateTime end);
 }
