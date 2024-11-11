@@ -17,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 
 // 在一切类似电商系统的程序中，用户是通过下单的方式通知商家，用户已经购买了某商品，需要商家备货和发货，用户下单之后会产生
 // 订单相关数据，订单数据必须包含以下信息：
@@ -51,21 +53,44 @@ public class OrderController {
         return Result.success(orderSubmitVO);
     }
 
-    // TODO用户微信支付是有大问题的，只是有了一个理论上实现的代码，但实际上是无法使用的
+    // TODO用户微信支付是有大问题的，只是有了一个理论上实现的代码，但实际上是无法使用的，但是为了项目正常推进，改写了一个支付方法
+//    /**
+//     * 订单支付
+//     *
+//     * @param ordersPaymentDTO
+//     * @return
+//     */
+//    @PutMapping("/payment")
+//    @ApiOperation("订单支付")
+//    public Result<OrderPaymentVO> payment(@RequestBody OrdersPaymentDTO ordersPaymentDTO) throws Exception {
+//        log.info("订单支付：{}", ordersPaymentDTO);
+//        OrderPaymentVO orderPaymentVO = orderService.payment(ordersPaymentDTO);
+//        orderService.paySuccess();
+//        log.info("生成预支付交易单：{}", orderPaymentVO);
+//        return Result.success(orderPaymentVO);
+//    }
+
     /**
-     * 订单支付
+     * 订单支付，简易版本
      *
      * @param ordersPaymentDTO
      * @return
      */
     @PutMapping("/payment")
     @ApiOperation("订单支付")
-    public Result<OrderPaymentVO> payment(@RequestBody OrdersPaymentDTO ordersPaymentDTO) throws Exception {
-        log.info("订单支付：{}", ordersPaymentDTO);
-        OrderPaymentVO orderPaymentVO = orderService.payment(ordersPaymentDTO);
-        log.info("生成预支付交易单：{}", orderPaymentVO);
+    public Result<OrderPaymentVO> payment(@RequestBody OrdersPaymentDTO ordersPaymentDTO) {
+        log.info("订单支付......");
+        orderService.easyPay(ordersPaymentDTO);
+        // 直接手动封装一个vo对象返回
+        OrderPaymentVO orderPaymentVO = new OrderPaymentVO();
+        orderPaymentVO.setNonceStr("pay success");
+        orderPaymentVO.setSignType("wechat");
+        orderPaymentVO.setPaySign("null");
+        orderPaymentVO.setTimeStamp(String.valueOf(LocalDateTime.now()));
+        orderPaymentVO.setPackageStr("pay success");
         return Result.success(orderPaymentVO);
     }
+
 
     /**
      * 历史订单查询

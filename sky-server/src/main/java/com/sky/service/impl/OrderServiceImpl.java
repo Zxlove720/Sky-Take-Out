@@ -1,7 +1,6 @@
 package com.sky.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.Websocket.WebSocketServer;
@@ -136,58 +135,123 @@ public class OrderServiceImpl implements OrderService {
                 .build();
     }
 
+    // TODO 真正的微信支付难以完成，直接用简易支付就好
+//    /**
+//     * 订单支付
+//     *
+//     * @param ordersPaymentDTO
+//     * @return
+//     */
+//    public OrderPaymentVO payment(OrdersPaymentDTO ordersPaymentDTO) throws Exception {
+//        Long userId = BaseContext.getCurrentId();
+//        User user = userMapper.getById(userId);
+//        //调用微信支付接口，生成预支付交易单
+//        JSONObject jsonObject = weChatPayUtil.pay(
+//                ordersPaymentDTO.getOrderNumber(), //商户订单号
+//                new BigDecimal("100.0"), //支付金额，单位 元
+//                "外卖订单", //商品描述
+//                user.getOpenid() //微信用户的openid
+//        );
+//
+//        if (jsonObject.getString("code") != null && jsonObject.getString("code").equals("ORDERPAID")) {
+//            throw new OrderBusinessException("该订单已支付");
+//        }
+//
+//        OrderPaymentVO vo = jsonObject.toJavaObject(OrderPaymentVO.class);
+//        vo.setPackageStr(jsonObject.getString("package"));
+//        return vo;
+//    }
+
+//    /**
+//     * 支付成功，修改订单状态
+//     *
+//     * @param outTradeNo
+//     */
+//    public void paySuccess(String outTradeNo) {
+//        // 当前登录用户id
+//        Long userId = BaseContext.getCurrentId();
+//
+//        // 根据订单号查询当前用户的订单
+//        Orders ordersDB = orderMapper.getByNumberAndUserId(outTradeNo, userId);
+//
+//        // 根据订单id更新订单的状态、支付方式、支付状态、结账时间
+//        Orders orders = Orders.builder()
+//                .id(ordersDB.getId())
+//                .status(Orders.TO_BE_CONFIRMED)
+//                .payStatus(Orders.PAID)
+//                .checkoutTime(LocalDateTime.now())
+//                .build();
+//
+//        orderMapper.update(orders);
+//
+//        // 支付成功后，第一时间通知外卖商家（来单提醒）
+//        // 通过WebSocket实现服务端向客户端推送消息（无需请求，这就是WebSocket的优势之一）
+//        // 客户端解析服务端推送的消息，判断是来单提送还是客户催单，并进行相应的消息提示和语音播报
+//        // 前后端约定，服务端发送的数据格式为json，字段包括：type、orderId、content
+//        // type为消息类型：1.来单提醒     2.客户催单
+//        // orderId为订单id；content为消息内容
+//        Map<Object, Object> map = new HashMap<>();
+//        map.put("type", WebSocketConstant.NEW_ORDER);
+//        map.put("orderId", orders.getId());
+//        map.put("content", "订单号：" + outTradeNo);
+//
+//        // 通过WebSocket实现来单提醒，向客户端浏览器推送消息
+//        webSocketServer.sendToAllClients(JSON.toJSONString(map));
+//    }
+
     /**
-     * 订单支付
+     * 欺骗编译器，没有用的方法
      *
      * @param ordersPaymentDTO
      * @return
+     * @throws Exception
      */
+    @Override
     public OrderPaymentVO payment(OrdersPaymentDTO ordersPaymentDTO) throws Exception {
-        // 当前登录用户id
-        Long userId = BaseContext.getCurrentId();
-        User user = userMapper.getByOpenid(String.valueOf(userId));
-
-        //调用微信支付接口，生成预支付交易单
-        JSONObject jsonObject = weChatPayUtil.pay(
-                ordersPaymentDTO.getOrderNumber(), //商户订单号
-                new BigDecimal(0.01), //支付金额，单位 元
-                "苍穹外卖订单", //商品描述
-                user.getOpenid() //微信用户的openid
-        );
-
-        if (jsonObject.getString("code") != null && jsonObject.getString("code").equals("ORDERPAID")) {
-            throw new OrderBusinessException("该订单已支付");
-        }
-
-        OrderPaymentVO vo = jsonObject.toJavaObject(OrderPaymentVO.class);
-        vo.setPackageStr(jsonObject.getString("package"));
-
-        return vo;
+        System.out.println("因为接口中有微信支付的方法，但是无法完成微信支付，所以说重写一个方法来通过编译，使用简易的支付即可");
+        System.out.println("实现了真正的微信支付时，删除这个方法");
+        return null;
     }
 
     /**
-     * 支付成功，修改订单状态
+     * 欺骗编译器，没有用的方法
      *
      * @param outTradeNo
      */
+    @Override
     public void paySuccess(String outTradeNo) {
-        // 当前登录用户id
+        System.out.println("因为接口中有微信支付的方法，但是无法完成微信支付，所以说重写一个方法来通过编译，使用简易的支付即可");
+        System.out.println("实现了真正的微信支付时，删除这个方法");
+    }
+
+    /**
+     * 无法完成微信支付的简易支付方法
+     *
+     * @param ordersPaymentDTO
+     */
+    @Override
+    public void easyPay(OrdersPaymentDTO ordersPaymentDTO) {
+        log.info("简易支付");
+        // 获得用户id
         Long userId = BaseContext.getCurrentId();
-
-        // 根据订单号查询当前用户的订单
-        Orders ordersDB = orderMapper.getByNumberAndUserId(outTradeNo, userId);
-
-        // 根据订单id更新订单的状态、支付方式、支付状态、结账时间
-        Orders orders = Orders.builder()
-                .id(ordersDB.getId())
-                .status(Orders.TO_BE_CONFIRMED)
-                .payStatus(Orders.PAID)
-                .checkoutTime(LocalDateTime.now())
-                .build();
-
+        // 获取订单号
+        String orderNumber = ordersPaymentDTO.getOrderNumber();
+        // 根据用户id和订单号查询订单
+        Orders orders = orderMapper.getByNumberAndUserId(orderNumber, userId);
+        // 判断支付状态是否是待付款
+        if (!orders.getPayStatus().equals(Orders.UN_PAID)) {
+            // 不是待付款订单，无法进行支付，抛出异常
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        // 订单没有异常，修改其状态
+        // 修改支付状态为已付款
+        orders.setPayStatus(Orders.PAID);
+        // 修改订单状态为待接单
+        orders.setStatus(Orders.TO_BE_CONFIRMED);
+        // 在数据库中修改
         orderMapper.update(orders);
 
-        // 支付成功后，第一时间通知外卖商家（来单提醒）
+                // 支付成功后，第一时间通知外卖商家（来单提醒）
         // 通过WebSocket实现服务端向客户端推送消息（无需请求，这就是WebSocket的优势之一）
         // 客户端解析服务端推送的消息，判断是来单提送还是客户催单，并进行相应的消息提示和语音播报
         // 前后端约定，服务端发送的数据格式为json，字段包括：type、orderId、content
@@ -196,7 +260,7 @@ public class OrderServiceImpl implements OrderService {
         Map<Object, Object> map = new HashMap<>();
         map.put("type", WebSocketConstant.NEW_ORDER);
         map.put("orderId", orders.getId());
-        map.put("content", "订单号：" + outTradeNo);
+        map.put("content", "订单号：" + orderNumber);
 
         // 通过WebSocket实现来单提醒，向客户端浏览器推送消息
         webSocketServer.sendToAllClients(JSON.toJSONString(map));
@@ -416,20 +480,29 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.update(orders);
     }
 
+//    /**
+//     * 抽取出来的退款方法
+//     *
+//     * @param ordersDB
+//     * @throws Exception
+//     */
+//    // TODO 这个退款方法不应该放在此处，应该在util中
+//    public void refund(Orders ordersDB) throws Exception {
+//            String refund = weChatPayUtil.refund(
+//                    ordersDB.getNumber(),
+//                    ordersDB.getNumber(),
+//                    new BigDecimal(String.valueOf(ordersDB.getAmount())),
+//                    new BigDecimal(String.valueOf(ordersDB.getAmount())));
+//            log.info("申请退款：{}", refund);
+//    }
+
     /**
-     * 抽取出来的退款方法
-     *
-     * @param ordersDelete
-     * @throws Exception
+     * 简单的模拟退款方法
+     * 由于微信支付无法使用，退款方法自然也难以使用，所以说写一个简单的退款方法来模拟退款即可
+     * @param ordersDB
      */
-    // TODO 这个退款方法不应该放在此处，应该在util中
-    public void refund(Orders ordersDelete) throws Exception {
-            String refund = weChatPayUtil.refund(
-                    ordersDelete.getNumber(),
-                    ordersDelete.getNumber(),
-                    new BigDecimal(String.valueOf(ordersDelete.getAmount())),
-                    new BigDecimal(String.valueOf(ordersDelete.getAmount())));
-            log.info("申请退款：{}", refund);
+    public void refund(Orders ordersDB) {
+        log.info("退款成功");
     }
 
     /**

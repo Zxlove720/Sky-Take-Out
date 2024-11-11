@@ -19,6 +19,7 @@ public interface OrderService {
 
     /**
      * 订单支付
+     *
      * @param ordersPaymentDTO
      * @return
      */
@@ -26,9 +27,17 @@ public interface OrderService {
 
     /**
      * 支付成功，修改订单状态
+     *
      * @param outTradeNo
      */
     void paySuccess(String outTradeNo);
+
+    /**
+     * 简易支付方法
+     *
+     * @param ordersPaymentDTO
+     */
+    void easyPay(OrdersPaymentDTO ordersPaymentDTO);
 
     /**
      * 历史订单查询
