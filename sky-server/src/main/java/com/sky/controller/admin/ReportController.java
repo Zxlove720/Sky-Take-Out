@@ -3,6 +3,7 @@ package com.sky.controller.admin;
 import com.sky.result.Result;
 import com.sky.service.ReportService;
 import com.sky.vo.TurnoverReportVO;
+import com.sky.vo.UserReportVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,25 @@ public class ReportController {
                                                        LocalDate begin,
                                                        @DateTimeFormat(pattern = "yyyy-MM-dd")
                                                        LocalDate end) {
-        return Result.success(reportService.getTurnover(begin, end));
+        return Result.success(reportService.getTurnoverStatistics(begin, end));
+    }
+
+    /**
+     * 用户数据统计
+     *
+     * @param begin
+     * @param end
+     * @return
+     */
+    // 用户数据统计分为两个部分：用户总量和新增用户；用户总量很好理解————
+    // 而新增用户可以理解为：假如是今天是11.11日，
+    // 那么在11.11日最小时间（00:00:00）————11.11日最大时间（23:59:59）创建的用户都是这一天的新用户
+    @GetMapping("/userStatistics")
+    @ApiOperation("用户数据统计")
+    public Result<UserReportVO> userStatistics(@DateTimeFormat(pattern = "yyyy-MM-dd")
+                                               LocalDate begin,
+                                               @DateTimeFormat(pattern = "yyyy-MM-dd")
+                                               LocalDate end) {
+        return Result.success(reportService.getUserStatistics(begin, end));
     }
 }

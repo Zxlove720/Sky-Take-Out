@@ -2,10 +2,13 @@ package com.sky.service.impl;
 
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
+import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.TurnoverReportVO;
+import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +23,18 @@ public class ReportServiceImpl implements ReportService {
 
     @Autowired
     private OrderMapper orderMapper;
+    @Autowired
+    private UserMapper userMapper;
 
+    /**
+     * 根据时间区间查询营业额数据
+     *
+     * @param begin
+     * @param end
+     * @return
+     */
     @Override
-    public TurnoverReportVO getTurnover(LocalDate begin, LocalDate end) {
+    public TurnoverReportVO getTurnoverStatistics(LocalDate begin, LocalDate end) {
         // 创建一个集合，用于存储从begin-end时间内的所有日期，用于查找对应的营业额
         List<LocalDate> dateList = new ArrayList<>();
         // 先加入起始日期
@@ -64,4 +76,65 @@ public class ReportServiceImpl implements ReportService {
                 .turnoverList(StringUtils.join(turnoverList, ","))
                 .build();
     }
+
+    /**
+     * 根据时间区间查询用户数据
+     *
+     * @param begin
+     * @param end
+     * @return
+     */
+    @Override
+    public UserReportVO getUserStatistics(LocalDate begin, LocalDate end) {
+        // 创建日期集合
+        List<LocalDate> dateList = new ArrayList<>();
+        dateList.add(begin);
+        while(! begin.equals(end)) {
+            begin = begin.plusDays(1);
+            dateList.add(begin);
+        }
+        // 新增用户集合
+        List<Integer> newUserList = new ArrayList<>();
+        // 总用户集合
+        List<Integer> totalUserList = new ArrayList<>();
+        for (LocalDate date : dateList) {
+            LocalDateTime beginTime = LocalDateTime.of(date, LocalTime.MIN);
+            LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
+            // 总用户，只要在目标时间之前创建的用户都算是当前时间的总用户
+            // 建议先查询总用户数，因为查询条件更加简单
+            Integer totalUser = getUserCount(null, endTime);
+            // 新增用户可以理解为：假如是今天是11.11日，
+            // 那么在11.11日最小时间（00:00:00）————11.11日最大时间（23:59:59）创建的用户都是这一天的新用户
+            Integer newUser = getUserCount(beginTime, endTime);
+            // 进行前端逻辑处理，将null变为0
+            totalUser = totalUser == null ? 0 : totalUser;
+            newUser = newUser == null ? 0 : newUser;
+            // 加入对应集合
+            totalUserList.add(totalUser);
+            newUserList.add(newUser);
+        }
+        // 封装数据返回
+        return UserReportVO.builder()
+                .dateList(StringUtils.join(dateList, ","))
+                .newUserList(StringUtils.join(newUserList, ","))
+                .totalUserList(StringUtils.join(totalUserList, ","))
+                .build();
+    }
+
+    /**
+     * 根据时间区间统计用户数量
+     *
+     * @param beginTime
+     * @param endTime
+     * @return
+     */
+    private Integer getUserCount(LocalDateTime beginTime, LocalDateTime endTime) {
+        // 将开始时间和结束时间封装为map再在数据库中进行查询
+        Map<Object, Object> map = new HashMap<>();
+        map.put("begin", beginTime);
+        map.put("end", endTime);
+        return userMapper.countUsersByTime(map);
+    }
+
+
 }
