@@ -2,6 +2,7 @@ package com.sky.controller.admin;
 
 import com.sky.result.Result;
 import com.sky.service.ReportService;
+import com.sky.vo.OrderReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import io.swagger.annotations.Api;
@@ -65,5 +66,22 @@ public class ReportController {
                                                @DateTimeFormat(pattern = "yyyy-MM-dd")
                                                LocalDate end) {
         return Result.success(reportService.getUserStatistics(begin, end));
+    }
+
+    /**
+     * 订单数据统计
+     *
+     * @param begin
+     * @param end
+     * @return
+     */
+    // 订单数据统计需要查询当天的所有订单和完成了的有效订单，并根据这两个数据计算出订单总数、有效订单总数、订单完成率
+    @GetMapping("/ordersStatistics")
+    @ApiOperation("订单数据统计")
+    public Result<OrderReportVO> ordersStatistics(@DateTimeFormat(pattern = "yyyy-MM-dd")
+                                                  LocalDate begin,
+                                                  @DateTimeFormat(pattern = "yyyy-MM-dd")
+                                                  LocalDate end) {
+        return Result.success(reportService.getOrdersStatistics(begin, end));
     }
 }

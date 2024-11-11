@@ -1,5 +1,6 @@
 package com.sky.service;
 
+import com.sky.vo.OrderReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import org.springframework.stereotype.Service;
@@ -26,4 +27,13 @@ public interface ReportService {
      * @return
      */
     UserReportVO getUserStatistics(LocalDate begin, LocalDate end);
+
+    /**
+     * 根据时间区间统计订单数据
+     *
+     * @param begin
+     * @param end
+     * @return
+     */
+    OrderReportVO getOrdersStatistics(LocalDate begin, LocalDate end);
 }

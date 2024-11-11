@@ -4,11 +4,11 @@ import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
+import com.sky.vo.OrderReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,14 +27,13 @@ public class ReportServiceImpl implements ReportService {
     private UserMapper userMapper;
 
     /**
-     * 根据时间区间查询营业额数据
+     * 抽取方法：根据begin————end时间区间创建日期集合
      *
      * @param begin
      * @param end
      * @return
      */
-    @Override
-    public TurnoverReportVO getTurnoverStatistics(LocalDate begin, LocalDate end) {
+    private List<LocalDate> createTimeList (LocalDate begin, LocalDate end) {
         // 创建一个集合，用于存储从begin-end时间内的所有日期，用于查找对应的营业额
         List<LocalDate> dateList = new ArrayList<>();
         // 先加入起始日期
@@ -46,7 +45,20 @@ public class ReportServiceImpl implements ReportService {
             // 加入集合
             dateList.add(begin);
         }
+        return dateList;
+    }
 
+    /**
+     * 根据时间区间查询营业额数据
+     *
+     * @param begin
+     * @param end
+     * @return
+     */
+    @Override
+    public TurnoverReportVO getTurnoverStatistics(LocalDate begin, LocalDate end) {
+        // 通过抽取的方法创建时间区间的日期集合
+        List<LocalDate> dateList = createTimeList(begin, end);
         // 创建营业额集合，用于存储每天的营业额
         List<Double> turnoverList = new ArrayList<>();
         // 遍历日期集合，按照每一天进行逻辑处理
@@ -86,13 +98,8 @@ public class ReportServiceImpl implements ReportService {
      */
     @Override
     public UserReportVO getUserStatistics(LocalDate begin, LocalDate end) {
-        // 创建日期集合
-        List<LocalDate> dateList = new ArrayList<>();
-        dateList.add(begin);
-        while(! begin.equals(end)) {
-            begin = begin.plusDays(1);
-            dateList.add(begin);
-        }
+        // 通过抽取的方法创建时间区间的日期集合
+        List<LocalDate> dateList = createTimeList(begin, end);
         // 新增用户集合
         List<Integer> newUserList = new ArrayList<>();
         // 总用户集合
@@ -134,6 +141,86 @@ public class ReportServiceImpl implements ReportService {
         map.put("begin", beginTime);
         map.put("end", endTime);
         return userMapper.countUsersByTime(map);
+    }
+
+    /**
+     * 根据时间区间查询订单数据
+     *
+     * @param begin
+     * @param end
+     * @return
+     */
+    @Override
+    public OrderReportVO getOrdersStatistics(LocalDate begin, LocalDate end) {
+        // 通过抽取的方法创建时间区间的日期集合
+        List<LocalDate> dateList = createTimeList(begin, end);
+
+        // 总订单集合
+        List<Integer> totalOrdersList = new ArrayList<>();
+        // 有效订单集合 valid   adj.有效的
+        List<Integer> validOrdersList = new ArrayList<>();
+
+        for (LocalDate date : dateList) {
+            LocalDateTime beginTime = LocalDateTime.of(date, LocalTime.MIN);
+            LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
+
+            // 查询总订单
+            Integer totalOrders = getOrdersCount(beginTime, endTime, null);
+            // 查询有效订单
+            Integer validOrders = getOrdersCount(beginTime, endTime, Orders.COMPLETED);
+            // 进行前端逻辑处理，将null变为0
+            totalOrders = totalOrders == null ? 0 : totalOrders;
+            // TODO 细心！细心！细心！不要再犯这种傻逼错误
+            validOrders = validOrders == null ? 0 : validOrders;
+            // 将其加入对应的集合
+            totalOrdersList.add(totalOrders);
+            validOrdersList.add(validOrders);
+        }
+
+        // 计算总订单数量
+        Integer totalOrdersCount = 0;
+        for (Integer order : totalOrdersList) {
+            totalOrdersCount += order;
+        }
+        // 计算总有效订单数量
+        Integer validOrdersCount = 0;
+        for (Integer order : validOrdersList) {
+            validOrdersCount += order;
+        }
+        // 计算完单率
+        // 如果没有订单，完单率就是0
+        Double orderCompletionRate = 0.0;
+        if (totalOrdersCount != 0) {
+            // 只有存在订单，才计算完单率
+         orderCompletionRate = validOrdersCount.doubleValue() / totalOrdersCount;
+        }
+
+        return OrderReportVO.builder()
+                .dateList(StringUtils.join(dateList, ","))
+                .orderCountList(StringUtils.join(totalOrdersList, ","))
+                .validOrderCountList(StringUtils.join(validOrdersList, ","))
+                .totalOrderCount(totalOrdersCount)
+                .validOrderCount(validOrdersCount)
+                .orderCompletionRate(orderCompletionRate)
+                .build();
+    }
+
+    /**
+     * 根据时间区间和订单状态查询订单数据
+     *
+     * @param beginTime
+     * @param endTime
+     * @param status
+     * @return
+     */
+    private Integer getOrdersCount(LocalDateTime beginTime, LocalDateTime endTime, Integer status) {
+        // 将时间和状态封装为map进行查询
+        // 在SQL中先根据status查询，若status不对，那么就可以不用比对后面的属性，提高效率
+        Map<Object, Object> map = new HashMap<>();
+        map.put("status", status);
+        map.put("begin", beginTime);
+        map.put("end", endTime);
+        return orderMapper.statisticsOrders(map);
     }
 
 

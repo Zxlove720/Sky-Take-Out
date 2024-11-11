@@ -3,6 +3,7 @@ package com.sky.mapper;
 import com.github.pagehelper.Page;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -79,4 +80,12 @@ public interface OrderMapper {
      * @return
      */
     Double sumAmount(Map<Object, Object> map);
+
+    /**
+     * 动态条件统计订单数据
+     *
+     * @param map
+     * @return
+     */
+    Integer statisticsOrders(Map<Object, Object> map);
 }
