@@ -59,6 +59,17 @@
         </where>
         order by s.create_time desc
     </select>
+    <select id="countByStatus" resultType="java.lang.Integer">
+        select count(id) from setmeal
+        <where>
+            <if test="status != null">
+                status = #{status}
+            </if>
+            <if test="categoryId != null">
+                and category_id = #{categoryId}
+            </if>
+        </where>
+    </select>
 
     <update id="update" useGeneratedKeys="true" keyProperty="id">
         update setmeal

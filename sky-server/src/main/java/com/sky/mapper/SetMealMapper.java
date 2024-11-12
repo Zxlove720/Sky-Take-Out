@@ -14,6 +14,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface SetMealMapper {
@@ -100,4 +101,12 @@ public interface SetMealMapper {
     // 添加注解，完成自动补充属性
     @AutoFill(value = OperationType.UPDATE)
     void update(Setmeal setmeal);
+
+    /**
+     * 查询套餐总览
+     *
+     * @param map
+     * @return
+     */
+    Integer countByStatus(Map<Object, Object> map);
 }
