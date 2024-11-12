@@ -38,6 +38,16 @@
         order by d.create_time desc
     </select>
 
+    <select id="countByStatus" resultType="java.lang.Integer">
+        select count(id) from dish
+        <where>
+            <if test="status != null">
+                status = #{status}
+            </if>
+        </where>
+
+    </select>
+
     <update id="update">
         update dish
         <set>
