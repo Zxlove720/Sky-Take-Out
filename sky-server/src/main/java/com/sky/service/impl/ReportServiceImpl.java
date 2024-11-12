@@ -241,12 +241,17 @@ public class ReportServiceImpl implements ReportService {
 
         // 查询销量前10的商品，并封装在GoodsSalesDTO中（商品名和销量）
         List<GoodsSalesDTO> goodsSalesDTOList = orderMapper.getSalesTop10(beginTime, endTime);
+        // 这里的逻辑是：需要在数据库中查询已经完成了的订单，查询这些订单的明细，查询出订单明细中的商品名和对应的数量；
+        // 传递时间区间后正好进行条件查询，查询这个区间之内的订单。最后按照商品名进行分组，对应数量进行倒序排序（销量高的在前）；
+        // 分页查询（limit关键字）前10条数据，就正好可以查询到销量前10的商品了。查询的别名正好和goodsSalesDTO类中属性相同，MyBatis可以直接映射
 
         // 处理goodsSalesDTOList中数据
+        // 开启流，通过map方法传入一个函数式接口（lambda表达式（lambda表达式可以替换为方法引用））处理集合中的每一个GoodsSalesDTO对象
+        // 得到每一个GoodsSalesDTO对象的name或number将其收集为集合，然后再用StringUtils中的join方法将其遍历为一个字符串封装到VO中返回
         String nameList = StringUtils.join(goodsSalesDTOList.stream().map(GoodsSalesDTO::getName)
                 .collect(Collectors.toList()), ",");
 
-        String numberList = StringUtils.join(goodsSalesDTOList.stream().map(GoodsSalesDTO::getNumber)
+        String numberList = StringUtils.join(goodsSalesDTOList.stream().map(goodsSalesDTO -> goodsSalesDTO.getNumber())
                 .collect(Collectors.toList()), ",");
 
         // 封装成对应的VO返回

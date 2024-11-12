@@ -102,6 +102,7 @@
         select od.name as name, sum(od.number) as number from order_detail as od, orders as o
         where od.order_id = o.id
             and o.status = 5
+        <!-- 查询完成了的订单的明细，需要查询订单明细中的商品名和数量 -->
             <if test="begin != null">
                 and order_time &gt;= #{begin}
             </if>
@@ -111,5 +112,6 @@
         group by name
         order by number desc
         limit 0, 10
+        <!-- 根据商品名进行分组，并按照商品数量倒序排序，并分页查询，只查询前10个；从而实现统计销量top10的功能 -->
     </select>
 </mapper>
