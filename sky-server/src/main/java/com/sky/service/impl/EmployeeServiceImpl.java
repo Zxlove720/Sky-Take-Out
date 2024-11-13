@@ -9,13 +9,16 @@ import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
+import com.sky.dto.PasswordEditDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
+import com.sky.exception.PasswordEditFailedException;
 import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
 import com.sky.result.PageResult;
 import com.sky.service.EmployeeService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Slf4j
 public class EmployeeServiceImpl implements EmployeeService {
 
     @Autowired
@@ -186,5 +190,32 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 调用Mapper层中方法操作数据库（在实现启用/禁用员工账号时已经实现，所以说直接可以使用）
         employeeMapper.update(employee);
     }
+
+    /**
+     * 员工修改密码
+     *
+     * @param passwordEditDTO
+     */
+    @Override
+    public void editPassword(PasswordEditDTO passwordEditDTO) {
+        Long id = BaseContext.getCurrentId();
+        System.out.println("-------------------");
+        System.out.println(passwordEditDTO);
+        log.warn("{}", id);
+        Employee employee = employeeMapper.getById(id);
+        String oldPassword = employee.getPassword();
+        // 比对旧密码是否一致，若旧密码一致那么就可以修改为新密码
+        // 因为数据库中的员工密码是加密过的，所以说比对时也需要将密码进行加密之后再比对
+        if (DigestUtils.md5DigestAsHex(passwordEditDTO.getOldPassword().getBytes()).equals(oldPassword)) {
+            // 前端请求的员工原密码和查询的对应员工密码成功比对，可以修改密码
+            // 前端请求的新密码是没有加密的，需要将其加密
+            employee.setPassword(DigestUtils.md5DigestAsHex(passwordEditDTO.getNewPassword().getBytes()));
+            // 更新数据库
+            employeeMapper.update(employee);
+        } else {
+            throw new PasswordEditFailedException(MessageConstant.PASSWORD_EDIT_FAILED);
+        }
+    }
+
 
 }
