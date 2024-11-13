@@ -33,5 +33,6 @@ public class MessageConstant {
     public static final String USER_CANCEL_ORDER = "用户取消了订单";
     public static final String PAY_ORDER_TIMEOUT = "支付超时，自动取消";
     public static final String DEFAULT_ADDRESS_NOT_FOUND = "默认地址不存在";
+    public static final String FILE_NOT_EXIST = "文件不存在";
 
 }

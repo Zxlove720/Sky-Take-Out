@@ -108,6 +108,8 @@ public class ReportController {
      *
      * @param response
      */
+    // 基于Apache POI实现导出运营数据报表
+    // Apache POI是处理Microsoft Office中各类文件的开源项目，使用POI可以在Java程序中处理Office文件，但是一般只处理EXCEL文件，用来导出数据报表等
     @GetMapping("/export")
     @ApiOperation("导出运营数据报表")
     public void export(HttpServletResponse response) {

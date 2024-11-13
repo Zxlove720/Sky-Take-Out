@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.sky.constant.MessageConstant;
 import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
@@ -19,7 +20,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -274,62 +274,73 @@ public class ReportServiceImpl implements ReportService {
      *
      * @param response
      */
+    // POI可以将数据写入到本地的EXCEL文件；也可以读取本地EXCEL文件到内存
+    // Apache POI使用方法：
+    // 1.导入Apache POI的maven坐标
+    // 2.先在本地创建一个EXCEL模板文件，再用输入流读取这个模板
+    // 3.POI会根据这个模板文件创建一个一样的新的EXCEL文件
+    // 4.在这个新的EXCEL中创建一个新的sheet
+    // 5.使用getRow方法得到sheet中的行；再用链式编程，在对应的行使用getCell方法得到需要的单元格，就可以写入数据了（行号列号是从0开始的）
     @Override
     public void exportBusinessData(HttpServletResponse response) {
         // 需要导出近30的报表，所以说起始日期是当前时间 - 30天，结束时间是当前时间 - 1天
         LocalDate begin = LocalDate.now().minusDays(30);
         LocalDate end = LocalDate.now().minusDays(1);
         // 查询运营数据，提供给Excel模板文件
-        // 因为通过Apache POI只能简单的查询数据到Excel中，无法修改Excel的布局、字体、单元格等，所以说需要事先提供Excel模板文件
         BusinessDataVO businessData = workSpaceService.getBusinessData
                 (LocalDateTime.of(begin, LocalTime.MIN), LocalDateTime.of(end, LocalTime.MAX));
 
         // 开启模板文件的输入流
+        // 因为通过Apache POI只能简单的查询数据到Excel中，无法修改Excel的布局、字体、单元格等，所以说需要事先提供Excel模板文件
         InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("template/运营数据报表模板.xlsx");
         try {
-            // 基于提供好的模板文件创建一个新的Excel表格对象
-            XSSFWorkbook excel = new XSSFWorkbook(inputStream);
-            // 获取Excel中的一个新的Sheet页
-            XSSFSheet sheet = excel.getSheet("Sheet1");
-            // 给这张表封装时间
-            sheet.getRow(1).getCell(1).setCellValue(begin + "至" + end);
-            // 接下来需要根据定义的模板文件，具体为单元格封装数据
-            // 获取第四行
-            XSSFRow row = sheet.getRow(3);
-            // 获取需要封装数据的单元格，并对其封装数据
-            row.getCell(2).setCellValue(businessData.getTurnover());
-            row.getCell(4).setCellValue(businessData.getOrderCompletionRate());
-            row.getCell(6).setCellValue(businessData.getNewUsers());
-            // 获取第五行
-            row = sheet.getRow(4);
-            row.getCell(2).setCellValue(businessData.getValidOrderCount());
-            row.getCell(4).setCellValue(businessData.getUnitPrice());
-
-            // 按照模板文件，接下来需要封装明细数据，明细数据从第8行开始，有30行、6列，可以用循环完成
-            for (int i = 0; i < 30; i++) {
-                LocalDate date = begin.plusDays(i);
-                // 准备明细数据
-                // 这里的明细是每一天的，所以说传递的时间也是每一天的
-                businessData = workSpaceService.getBusinessData(LocalDateTime.of(date,LocalTime.MIN),
-                        LocalDateTime.of(date, LocalTime.MAX));
-                row = sheet.getRow(7 + i);
-                // 为每一个单元格封装数据
-                row.getCell(1).setCellValue(date.toString());
+            if (inputStream != null) {
+                // 基于提供好的模板文件创建一个新的Excel表格对象
+                XSSFWorkbook excel = new XSSFWorkbook(inputStream);
+                // 获取Excel中的一个新的Sheet页
+                XSSFSheet sheet = excel.getSheet("Sheet1");
+                // 给这张表封装时间
+                sheet.getRow(1).getCell(1).setCellValue(begin + "至" + end);
+                // 接下来需要根据定义的模板文件，具体为单元格封装数据
+                // 获取第四行
+                XSSFRow row = sheet.getRow(3);
+                // 获取需要封装数据的单元格，并对其封装数据
                 row.getCell(2).setCellValue(businessData.getTurnover());
-                row.getCell(3).setCellValue(businessData.getValidOrderCount());
                 row.getCell(4).setCellValue(businessData.getOrderCompletionRate());
-                row.getCell(5).setCellValue(businessData.getUnitPrice());
                 row.getCell(6).setCellValue(businessData.getNewUsers());
-            }
+                // 获取第五行
+                row = sheet.getRow(4);
+                row.getCell(2).setCellValue(businessData.getValidOrderCount());
+                row.getCell(4).setCellValue(businessData.getUnitPrice());
 
-            // 通过输出流，将文件下载到客户端浏览器中
-            ServletOutputStream out = response.getOutputStream();
-            excel.write(out);
-            // 关闭资源
-            out.flush();
-            out.close();
-            excel.close();
-        } catch (IOException e) {
+                // 按照模板文件，接下来需要封装明细数据，明细数据从第8行开始，有30行、6列，可以用循环完成
+                for (int i = 0; i < 30; i++) {
+                    LocalDate date = begin.plusDays(i);
+                    // 准备明细数据
+                    // 这里的明细是每一天的，所以说传递的时间也是每一天的
+                    businessData = workSpaceService.getBusinessData(LocalDateTime.of(date,LocalTime.MIN),
+                            LocalDateTime.of(date, LocalTime.MAX));
+                    row = sheet.getRow(7 + i);
+                    // 为每一个单元格封装数据
+                    row.getCell(1).setCellValue(date.toString());
+                    row.getCell(2).setCellValue(businessData.getTurnover());
+                    row.getCell(3).setCellValue(businessData.getValidOrderCount());
+                    row.getCell(4).setCellValue(businessData.getOrderCompletionRate());
+                    row.getCell(5).setCellValue(businessData.getUnitPrice());
+                    row.getCell(6).setCellValue(businessData.getNewUsers());
+                }
+
+                // 通过输出流，将文件下载到客户端浏览器中
+                ServletOutputStream out = response.getOutputStream();
+                excel.write(out);
+                // 关闭资源
+                out.flush();
+                out.close();
+                excel.close();
+            } else {
+                throw new NullPointerException(MessageConstant.FILE_NOT_EXIST);
+            }
+        } catch (NullPointerException | IOException e) {
             e.printStackTrace();
         }
     }

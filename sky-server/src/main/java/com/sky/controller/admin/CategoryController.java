@@ -1,6 +1,5 @@
 package com.sky.controller.admin;
 // 这是对于菜品和套餐进行分类的Controller
-// TODO 需要完成菜品和套餐的CRUD
 
 import com.sky.constant.StatusConstant;
 import com.sky.dto.CategoryDTO;
