@@ -2,7 +2,7 @@ package com.sky.controller.admin;
 
 
 import com.sky.result.Result;
-import com.sky.service.WorkSpacerService;
+import com.sky.service.WorkSpaceService;
 import com.sky.vo.BusinessDataVO;
 import com.sky.vo.DishOverViewVO;
 import com.sky.vo.OrderOverViewVO;
@@ -28,7 +28,7 @@ import java.time.LocalTime;
 public class WorkSpaceController {
 
     @Autowired
-    private WorkSpacerService workSpaceService;
+    private WorkSpaceService workSpaceService;
 
     /**
      * 工作台查询今日数据
