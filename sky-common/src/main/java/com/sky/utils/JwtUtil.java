@@ -7,7 +7,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
-
+// TODO JWT令牌，重点关注
 public class JwtUtil {
     /**
      * 生成jwt

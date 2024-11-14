@@ -41,8 +41,8 @@ public class EmployeeController {
     /**
      * 登录
      *
-     * @param employeeLoginDTO
-     * @return
+     * @param employeeLoginDTO 前端请求用户名和密码，通过@RequestBody封装到DTO中
+     * @return Result<EmployeeLoginVO>
      */
     @PostMapping("/login")
     @ApiOperation(value = "员工登录")
@@ -71,9 +71,9 @@ public class EmployeeController {
     }
 
     /**
-     * 退出
+     * 员工退出
      *
-     * @return
+     * @return Result
      */
     @PostMapping("/logout")
     @ApiOperation("员工退出")
@@ -83,12 +83,12 @@ public class EmployeeController {
 
     /**
      * 新增员工
-     * @param employeeDTO
-     * @return
+     * @param employeeDTO 前端传递系列员工信息，封装到DTO中
+     * @return Result
      */
     @PostMapping
     @ApiOperation("新增员工")
-    public Result save(@RequestBody EmployeeDTO employeeDTO) {
+    public <T> Result<T> save(@RequestBody EmployeeDTO employeeDTO) {
         log.info("新增员工：{}", employeeDTO);
         employeeService.save(employeeDTO);
         return Result.success();
@@ -97,8 +97,8 @@ public class EmployeeController {
     /**
      * 员工分页查询
      *
-     * @param employeePageQueryDTO
-     * @return
+     * @param employeePageQueryDTO 前端请求员工姓名（支持模糊匹配）、分页查询的页码、每一页显示的记录条数
+     * @return Result<PageResult>
      */
     @GetMapping("/page")
     @ApiOperation("员工分页查询")
@@ -113,15 +113,15 @@ public class EmployeeController {
     /**
      * 启用/禁用员工账号
      *
-     * @param status
-     * @param id
-     * @return
+     * @param status 员工状态，前端是传递的想要把员工启用/禁用后的状态，用status封装Employee对象
+     * @param id 员工id，根据id来封装Employee对象，便于在数据库中修改
+     * @return Result
      */
     @PostMapping("/status/{status}")
     @ApiOperation("启用/禁用员工账号")
     // 前端的请求路径携带当前员工的状态值：若员工状态为禁用，那么要将其变为启用；若状态为启用，则变为禁用
     // 前端请求路径还传递了id，通过id定位该操作是针对哪个用户
-    public Result startOrStop(@PathVariable Integer status, Long id) {
+    public Result<Object> startOrStop(@PathVariable Integer status, Long id) {
         if (status.equals(StatusConstant.ENABLE)) {
             log.info("禁用员工账号：{}, {}", status, id);
         } else {
