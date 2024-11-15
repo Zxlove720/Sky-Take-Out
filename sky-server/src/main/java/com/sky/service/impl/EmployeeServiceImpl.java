@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -61,12 +60,47 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
         }
 
-        if (employee.getStatus() == StatusConstant.DISABLE) {
+        if (employee.getStatus().equals(StatusConstant.DISABLE)) {
             //账号被锁定
             throw new AccountLockedException(MessageConstant.ACCOUNT_LOCKED);
         }
 
         //3、返回实体对象
+        return employee;
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param employeePageQueryDTO
+     * @return
+     */
+    @Override
+    public PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
+        // 原始SQL语句：select * from employee limit 0, 10
+        // 使用PageHelper插件帮助分页查询
+        PageHelper.startPage(employeePageQueryDTO.getPage(), employeePageQueryDTO.getPageSize());
+        // PageHelper查询默认返回Page，Page是继承了ArrayList的，其中存储的是查询到的对象（这里要用Employee对象）
+        Page<Employee> page = employeeMapper.pageQuery(employeePageQueryDTO);
+        // 获取总页数
+        long total = page.getTotal();
+        // 获取每一页的记录
+        List<Employee> records = page.getResult();
+        // 返回查询结果
+        return new PageResult(total, records);
+    }
+
+    /**
+     * 根据id查询员工信息
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public Employee getById(Long id) {
+        Employee employee = employeeMapper.getById(id);
+        // 回显到前端页面，密码即使通过MD5加密了也不安全，所以说要对回显的密码进行再次加密
+        employee.setPassword("******");
         return employee;
     }
 
@@ -109,29 +143,26 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         // 使用mapper层操作数据库，插入一个新的员工
         employeeMapper.insert(employee);
-
     }
 
     /**
-     * 分页查询
+     * 编辑员工信息
      *
-     * @param employeePageQueryDTO
-     * @return
+     * @param employeeDTO
      */
     @Override
-    public PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
-        // 原始SQL语句：select * from employee limit 0, 10
+    public void update(EmployeeDTO employeeDTO) {
+        // 将DTO类转换为对应的实体类————对象拷贝（DTO只是为了前端的数据传输，其中的属性是不全的，给Mapper应该要用对应的实体类）
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(employeeDTO, employee);
+//        // 为employee类补充信息
+//        // 更新时间
+//        employee.setUpdateTime(LocalDateTime.now());
+//        // 操作用户的id————根据ThreadLocal得到
+//        employee.setUpdateUser(BaseContext.getCurrentId());
 
-        // 使用PageHelper插件帮助分页查询
-        PageHelper.startPage(employeePageQueryDTO.getPage(), employeePageQueryDTO.getPageSize());
-        // PageHelper查询默认返回Page，Page是继承了ArrayList的，其中存储的是查询到的对象（这里要用Employee对象）
-        Page<Employee> page = employeeMapper.pageQuery(employeePageQueryDTO);
-        // 获取总页数
-        long total = page.getTotal();
-        // 获取每一页的记录
-        List<Employee> records = page.getResult();
-        // 返回查询结果
-        return new PageResult(total, records);
+        // 调用Mapper层中方法操作数据库（在实现启用/禁用员工账号时已经实现，所以说直接可以使用）
+        employeeMapper.update(employee);
     }
 
     /**
@@ -154,40 +185,6 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .id(id)
                 .build();
         // 因为启用/禁用员工账号本质上是修改员工的status属性，所以说直接调用Mapper中的update方法即可
-        employeeMapper.update(employee);
-    }
-
-    /**
-     * 根据id查询员工信息
-     *
-     * @param id
-     * @return
-     */
-    @Override
-    public Employee getById(Long id) {
-        Employee employee = employeeMapper.getById(id);
-        // 回显到前端页面，密码即使通过MD5加密了也不安全，所以说要对回显的密码进行再次加密
-        employee.setPassword("******");
-        return employee;
-    }
-
-    /**
-     * 编辑员工信息
-     *
-     * @param employeeDTO
-     */
-    @Override
-    public void update(EmployeeDTO employeeDTO) {
-        // 将DTO类转换为对应的实体类————对象拷贝（DTO只是为了前端的数据传输，其中的属性是不全的，给Mapper应该要用对应的实体类）
-        Employee employee = new Employee();
-        BeanUtils.copyProperties(employeeDTO, employee);
-//        // 为employee类补充信息
-//        // 更新时间
-//        employee.setUpdateTime(LocalDateTime.now());
-//        // 操作用户的id————根据ThreadLocal得到
-//        employee.setUpdateUser(BaseContext.getCurrentId());
-
-        // 调用Mapper层中方法操作数据库（在实现启用/禁用员工账号时已经实现，所以说直接可以使用）
         employeeMapper.update(employee);
     }
 
@@ -216,6 +213,4 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new PasswordEditFailedException(MessageConstant.PASSWORD_EDIT_FAILED);
         }
     }
-
-
 }

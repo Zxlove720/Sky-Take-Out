@@ -2,7 +2,6 @@ package com.sky.controller.admin;
 
 import com.sky.constant.JwtClaimsConstant;
 import com.sky.constant.StatusConstant;
-import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
@@ -29,8 +28,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/employee")
 @Slf4j
-@Api(tags = "员工相关接口")
 // @Api注解是用于类上，表示对类的说明的注解
+@Api(tags = "员工相关接口")
 public class EmployeeController {
 
     @Autowired
@@ -72,25 +71,12 @@ public class EmployeeController {
 
     /**
      * 员工退出
-     *
+     * 前端直接操作的，不需要请求后端数据，直接返回即可
      * @return Result
      */
     @PostMapping("/logout")
     @ApiOperation("员工退出")
-    public Result<String> logout() {
-        return Result.success();
-    }
-
-    /**
-     * 新增员工
-     * @param employeeDTO 前端传递系列员工信息，封装到DTO中
-     * @return Result
-     */
-    @PostMapping
-    @ApiOperation("新增员工")
-    public <T> Result<T> save(@RequestBody EmployeeDTO employeeDTO) {
-        log.info("新增员工：{}", employeeDTO);
-        employeeService.save(employeeDTO);
+    public Result logout() {
         return Result.success();
     }
 
@@ -111,33 +97,11 @@ public class EmployeeController {
     }
 
     /**
-     * 启用/禁用员工账号
-     *
-     * @param status 员工状态，前端是传递的想要把员工启用/禁用后的状态，用status封装Employee对象
-     * @param id 员工id，根据id来封装Employee对象，便于在数据库中修改
-     * @return Result
-     */
-    @PostMapping("/status/{status}")
-    @ApiOperation("启用/禁用员工账号")
-    // 前端的请求路径携带当前员工的状态值：若员工状态为禁用，那么要将其变为启用；若状态为启用，则变为禁用
-    // 前端请求路径还传递了id，通过id定位该操作是针对哪个用户
-    public Result<Object> startOrStop(@PathVariable Integer status, Long id) {
-        if (status.equals(StatusConstant.ENABLE)) {
-            log.info("禁用员工账号：{}, {}", status, id);
-        } else {
-            log.info("启用员工账号：{}，{}", status, id);
-        }
-        employeeService.startOrStop(status, id);
-        return Result.success();
-    }
-
-    /**
      * 根据id查询员工信息
      *
-     * @param id
-     * @return
+     * @param id 员工id
+     * @return Result<Employee> 封装根据id查询的员工信息返回 用作前端回显
      */
-    // 根据id查询员工信息，查询的员工信息作为修改员工信息的回显
     @GetMapping("/{id}")
     @ApiOperation("根据id查询员工信息")
     public Result<Employee> getById(@PathVariable Long id) {
@@ -146,10 +110,23 @@ public class EmployeeController {
     }
 
     /**
+     * 新增员工
+     * @param employeeDTO 前端传递系列员工信息，封装到DTO中
+     * @return Result
+     */
+    @PostMapping
+    @ApiOperation("新增员工")
+    public Result save(@RequestBody EmployeeDTO employeeDTO) {
+        log.info("新增员工：{}", employeeDTO);
+        employeeService.save(employeeDTO);
+        return Result.success();
+    }
+
+    /**
      * 编辑员工信息
      *
-     * @param employeeDTO
-     * @return
+     * @param employeeDTO 前端传递系列员工信息，封装到DTO中
+     * @return Result
      */
     @PutMapping
     @ApiOperation("编辑员工信息")
@@ -160,10 +137,31 @@ public class EmployeeController {
     }
 
     /**
+     * 启用/禁用员工账号
+     *
+     * @param status 员工状态，前端是传递的想要把员工启用/禁用后的状态，用status封装Employee对象
+     * @param id 员工id，根据id来封装Employee对象，便于在数据库中修改
+     * @return Result
+     */
+    @PostMapping("/status/{status}")
+    @ApiOperation("启用/禁用员工账号")
+    // 前端的请求路径携带当前员工的状态值：若员工状态为禁用，那么要将其变为启用；若状态为启用，则变为禁用
+    // 前端请求路径还传递了id，通过id定位该操作是针对哪个用户
+    public Result startOrStop(@PathVariable Integer status, Long id) {
+        if (status.equals(StatusConstant.ENABLE)) {
+            log.info("禁用员工账号：{}, {}", status, id);
+        } else {
+            log.info("启用员工账号：{}，{}", status, id);
+        }
+        employeeService.startOrStop(status, id);
+        return Result.success();
+    }
+
+    /**
      * 员工修改密码
      *
-     * @param passwordEditDTO
-     * @return
+     * @param passwordEditDTO 前端传递需要修改密码的员工id、旧密码和新密码，封装到密码修改的特定DTO中
+     * @return Result
      */
     @PutMapping("/editPassword")
     @ApiOperation("员工修改密码")
