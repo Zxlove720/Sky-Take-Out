@@ -38,6 +38,61 @@ public class DishServiceImp implements DishService {
     private SetMealMapper setMealMapper;
 
     /**
+     * 菜品分页查询
+     *
+     * @param dishPageQueryDTO
+     * @return
+     */
+    @Override
+    public PageResult pageQuery(DishPageQueryDTO dishPageQueryDTO) {
+        PageHelper.startPage(dishPageQueryDTO.getPage(), dishPageQueryDTO.getPageSize());
+        Page<DishVO> page = dishMapper.pageQuery(dishPageQueryDTO);
+        return new PageResult(page.getTotal(), page.getResult());
+    }
+
+    /**
+     * 根据id查询菜品
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public DishVO getById(Long id) {
+        // 根据id查询菜品数据
+        Dish dish = dishMapper.getById(id);
+        // 根据菜品id查询其对应的口味数据
+        List<DishFlavor> dishFlavors = dishFlavorMapper.getByDishId(id);
+        // 将查询到的数据封装到VO中回显前端
+        DishVO dishVO = new DishVO();
+        BeanUtils.copyProperties(dish, dishVO);
+        dishVO.setFlavors(dishFlavors);
+        return dishVO;
+    }
+
+    /**
+     * 根据菜品分类id查询该分类下的菜品及其口味
+     *
+     * @param dish
+     * @return
+     */
+    @Override
+    public List<DishVO> listWithFlavor(Dish dish) {
+        // 获取根据当前菜品分类id查询出来的所有菜品的列表
+        List<Dish> dishList = dishMapper.list(dish.getCategoryId());
+        // 创建一个DishVO
+        List<DishVO> dishVOList = new ArrayList<>();
+        for (Dish d : dishList) {
+            DishVO dishVO = new DishVO();
+            BeanUtils.copyProperties(d, dishVO);
+            // 根据菜品查询其对应的口味
+            List<DishFlavor> flavors = dishFlavorMapper.getByDishId(d.getId());
+            dishVO.setFlavors(flavors);
+            dishVOList.add(dishVO);
+        }
+        return dishVOList;
+    }
+
+    /**
      * 新增菜品和对应的口味
      *
      * @param dishDTO
@@ -68,19 +123,6 @@ public class DishServiceImp implements DishService {
             // 向口味表中插入n条数据
             dishFlavorMapper.insertBatch(flavors);
         }
-    }
-
-    /**
-     * 菜品分页查询
-     *
-     * @param dishPageQueryDTO
-     * @return
-     */
-    @Override
-    public PageResult pageQuery(DishPageQueryDTO dishPageQueryDTO) {
-        PageHelper.startPage(dishPageQueryDTO.getPage(), dishPageQueryDTO.getPageSize());
-        Page<DishVO> page = dishMapper.pageQuery(dishPageQueryDTO);
-        return new PageResult(page.getTotal(), page.getResult());
     }
 
     /**
@@ -117,25 +159,6 @@ public class DishServiceImp implements DishService {
     }
 
     /**
-     * 根据id查询菜品
-     *
-     * @param id
-     * @return
-     */
-    @Override
-    public DishVO getById(Long id) {
-        // 根据id查询菜品数据
-        Dish dish = dishMapper.getById(id);
-        // 根据菜品id查询其对应的口味数据
-        List<DishFlavor> dishFlavors = dishFlavorMapper.getByDishId(id);
-        // 将查询到的数据封装到VO中回显前端
-        DishVO dishVO = new DishVO();
-        BeanUtils.copyProperties(dish, dishVO);
-        dishVO.setFlavors(dishFlavors);
-        return dishVO;
-    }
-
-    /**
      * 修改菜品
      *
      * @param dishDTO
@@ -163,29 +186,6 @@ public class DishServiceImp implements DishService {
         }
 
 
-    }
-
-    /**
-     * 根据菜品分类id查询该分类下的菜品及其口味
-     *
-     * @param dish
-     * @return
-     */
-    @Override
-    public List<DishVO> listWithFlavor(Dish dish) {
-        // 获取根据当前菜品分类id查询出来的所有菜品的列表
-        List<Dish> dishList = dishMapper.list(dish.getCategoryId());
-        // 创建一个DishVO
-        List<DishVO> dishVOList = new ArrayList<>();
-        for (Dish d : dishList) {
-            DishVO dishVO = new DishVO();
-            BeanUtils.copyProperties(d, dishVO);
-            // 根据菜品查询其对应的口味
-            List<DishFlavor> flavors = dishFlavorMapper.getByDishId(d.getId());
-            dishVO.setFlavors(flavors);
-            dishVOList.add(dishVO);
-        }
-        return dishVOList;
     }
 
     /**

@@ -15,7 +15,6 @@ import java.util.Map;
 
 @Mapper
 public interface DishMapper {
-
     /**
      * 查询对应分类关联的菜品数量
      *
@@ -25,15 +24,8 @@ public interface DishMapper {
     Integer countDishByCategory(Long id);
 
     /**
-     * 新增菜品和对应口味
-     *
-     * @param dish
-     */
-    @AutoFill(value = OperationType.INSERT)
-    void insert(Dish dish);
-
-    /**
      * 菜品分页查询
+     *
      * @param dishPageQueryDTO
      * @return
      */
@@ -47,6 +39,26 @@ public interface DishMapper {
      */
     @Select("select * from dish where id = #{id}")
     Dish getById(Long id);
+
+    /**
+     * 根据菜品分类查询菜品
+     *
+     * @param categoryId
+     * @return
+     */
+    @Select("select * from dish where category_id = #{categoryId}")
+    List<Dish> list(Long categoryId);
+
+    @Select("select * from dish left join setmeal_dish on dish.id = setmeal_dish.dish_id where setmeal_dish.setmeal_id = #{id}")
+    List<Dish> getBySetmealId(Long id);
+
+    /**
+     * 新增菜品和对应口味
+     *
+     * @param dish
+     */
+    @AutoFill(value = OperationType.INSERT)
+    void insert(Dish dish);
 
     /**
      * 根据主键id删除菜品
@@ -63,24 +75,4 @@ public interface DishMapper {
      */
     @AutoFill(value = OperationType.UPDATE)
     void update(Dish dish);
-
-    /**
-     * 根据菜品分类查询菜品
-     *
-     * @param categoryId
-     * @return
-     */
-    @Select("select * from dish where category_id = #{categoryId}")
-    List<Dish> list(Long categoryId);
-
-    @Select("select * from dish left join setmeal_dish on dish.id = setmeal_dish.dish_id where setmeal_dish.setmeal_id = #{id}")
-    List<Dish> getBySetmealId(Long id);
-
-    /**
-     * 查询菜品总览
-     *
-     * @param map
-     * @return
-     */
-    Integer countByStatus(Map<Object, Object> map);
 }

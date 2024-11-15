@@ -29,7 +29,7 @@ import java.util.Map;
 @RequestMapping("/admin/employee")
 @Slf4j
 // @Api注解是用于类上，表示对类的说明的注解
-@Api(tags = "员工相关接口")
+@Api(tags = "员工管理相关接口")
 public class EmployeeController {
 
     @Autowired

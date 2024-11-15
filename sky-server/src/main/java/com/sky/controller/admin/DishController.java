@@ -24,14 +24,14 @@ import java.util.Set;
  */
 @RestController
 @RequestMapping("/admin/dish")
-@Api(tags = "菜品相关接口")
+@Api(tags = "菜品管理相关接口")
 @Slf4j
 public class DishController {
 
     @Autowired
     private DishService dishService;
 
-    // 需要在修改数据时，删除redis中的缓存，保证数据库和redis缓存的一致性
+    // 需要在修改数据时，删除redis中的缓存，保证数据库和redis缓存的一致性 TODO redis规范化问题
     @Autowired
     private RedisTemplate redisTemplate;
 
@@ -47,6 +47,50 @@ public class DishController {
         redisTemplate.delete(keys);
     }
 
+    /**
+     * 菜品分页查询
+     *
+     * @param dishPageQueryDTO
+     * @return
+     */
+    @GetMapping("page")
+    @ApiOperation("菜品分页查询")
+    public Result<PageResult> page(DishPageQueryDTO dishPageQueryDTO) {
+        log.info("菜品分页查询");
+        PageResult pageResult = dishService.pageQuery(dishPageQueryDTO);
+        return Result.success(pageResult);
+    }
+
+    /**
+     * 根据id查询菜品，并回显到前端
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    @ApiOperation("根据id查询菜品")
+    public Result<DishVO> getById(@PathVariable Long id) {
+        log.info("根据id查询菜品：{}", id);
+        DishVO dishVo = dishService.getById(id);
+        return Result.success(dishVo);
+    }
+
+    /**
+     * 根据分类id查询该分类下所有菜品
+     *
+     * @param categoryId
+     * @return
+     */
+    @GetMapping("/list")
+    @ApiOperation("根据菜品分类查询对应菜品")
+    public Result<List<DishVO>> list(Long categoryId) {
+        Dish dish = new Dish();
+        dish.setCategoryId(categoryId);
+        // 查询在售状态中的菜品
+        dish.setStatus(StatusConstant.ENABLE);
+        List<DishVO> list = dishService.listWithFlavor(dish);
+        return Result.success(list);
+    }
 
     /**
      * 新增菜品
@@ -68,20 +112,6 @@ public class DishController {
     }
 
     /**
-     * 菜品分页查询
-     *
-     * @param dishPageQueryDTO
-     * @return
-     */
-    @GetMapping("page")
-    @ApiOperation("菜品分页查询")
-    public Result<PageResult> page(DishPageQueryDTO dishPageQueryDTO) {
-        log.info("菜品分页查询");
-        PageResult pageResult = dishService.pageQuery(dishPageQueryDTO);
-        return Result.success(pageResult);
-    }
-
-    /**
      * 删除菜品
      * 要求：
      * 可以批量删除
@@ -100,20 +130,6 @@ public class DishController {
         // 键，所以说为了方便，每当删除菜品时，直接将redis中缓存的菜品全部删除（也就是删除redis中全部dish_开头的键）
         cleanCache("*dish_*");
         return Result.success();
-    }
-
-    /**
-     * 根据id查询菜品，并回显到前端
-     *
-     * @param id
-     * @return
-     */
-    @GetMapping("/{id}")
-    @ApiOperation("根据id查询菜品")
-    public Result<DishVO> getById(@PathVariable Long id) {
-        log.info("根据id查询菜品：{}", id);
-        DishVO dishVo = dishService.getById(id);
-        return Result.success(dishVo);
     }
 
     /**
@@ -152,22 +168,5 @@ public class DishController {
         cleanCache("dish_*");
 
         return Result.success();
-    }
-
-    /**
-     * 根据分类id查询该分类下所有菜品
-     *
-     * @param categoryId
-     * @return
-     */
-    @GetMapping("/list")
-    @ApiOperation("根据菜品分类查询对应菜品")
-    public Result<List<DishVO>> list(Long categoryId) {
-        Dish dish = new Dish();
-        dish.setCategoryId(categoryId);
-        // 查询在售状态中的菜品
-        dish.setStatus(StatusConstant.ENABLE);
-        List<DishVO> list = dishService.listWithFlavor(dish);
-        return Result.success(list);
     }
 }
