@@ -25,12 +25,12 @@ public interface WorkSpaceService {
      */
     OrderOverViewVO getOrderView();
 
-    /**
-     * 查询菜品总览
-     *
-     * @return
-     */
-    DishOverViewVO getDishOverView();
+//    /**
+//     * 查询菜品总览
+//     *
+//     * @return
+//     */
+//    DishOverViewVO getDishOverView();
 
     /**
      * 查询套餐总览

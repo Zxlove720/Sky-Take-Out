@@ -19,19 +19,19 @@ public class ShopController {
     @Autowired
     private RedisTemplate redisTemplate;
 
-    /**
-     * 设置店铺的营业状态
-     *
-     * @param status
-     * @return
-     */
-    @PutMapping("/{status}")
-    @ApiOperation("设置店铺的营业状态")
-    public Result setStatus(@PathVariable Integer status) {
-        log.info("设置店铺的营业状态为：{}", status == 1 ? "营业中": "打样中");
-        redisTemplate.opsForValue().set(KEY, status);
-        return Result.success();
-    }
+//    /**
+//     * 设置店铺的营业状态
+//     *
+//     * @param status
+//     * @return
+//     */
+//    @PutMapping("/{status}")
+//    @ApiOperation("设置店铺的营业状态")
+//    public Result setStatus(@PathVariable Integer status) {
+//        log.info("设置店铺的营业状态为：{}", status == 1 ? "营业中": "打样中");
+//        redisTemplate.opsForValue().set(KEY, status);
+//        return Result.success();
+//    }
 
     /**
      * 获取店铺当前的营业状态

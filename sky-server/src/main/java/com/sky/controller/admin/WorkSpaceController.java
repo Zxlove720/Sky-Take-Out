@@ -59,16 +59,16 @@ public class WorkSpaceController {
         return Result.success(workSpaceService.getOrderView());
     }
 
-    /**
-     * 查询菜品总览
-     *
-     * @return
-     */
-    @GetMapping("/overviewDishes")
-    @ApiOperation("查询菜品总览")
-    public Result<DishOverViewVO> dishOverView() {
-        return Result.success(workSpaceService.getDishOverView());
-    }
+//    /**
+//     * 查询菜品总览
+//     *
+//     * @return
+//     */
+//    @GetMapping("/overviewDishes")
+//    @ApiOperation("查询菜品总览")
+//    public Result<DishOverViewVO> dishOverView() {
+//        return Result.success(workSpaceService.getDishOverView());
+//    }
 
     /**
      * 查询套餐总览

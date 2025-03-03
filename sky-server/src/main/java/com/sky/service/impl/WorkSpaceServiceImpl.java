@@ -128,28 +128,28 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 .build();
     }
 
-    /**
-     * 查询菜品总览
-     *
-     * @return
-     */
-    @Override
-    public DishOverViewVO getDishOverView() {
-        // 菜品总览需要查询已起售的菜品数量和已停售的菜品数量
-        Map<Object, Object> map = new HashMap<>();
-        // 查询已起售的菜品
-        map.put("status", StatusConstant.ENABLE);
-        Integer sold = dishMapper.countByStatus(map);
-        // 查询未起售的菜品
-        map.put("status", StatusConstant.DISABLE);
-        Integer discontinued = dishMapper.countByStatus(map);
-
-        // 封装成对应的VO返回
-        return DishOverViewVO.builder()
-                .sold(sold)
-                .discontinued(discontinued)
-                .build();
-    }
+//    /**
+//     * 查询菜品总览
+//     *
+//     * @return
+//     */
+//    @Override
+//    public DishOverViewVO getDishOverView() {
+//        // 菜品总览需要查询已起售的菜品数量和已停售的菜品数量
+//        Map<Object, Object> map = new HashMap<>();
+//        // 查询已起售的菜品
+//        map.put("status", StatusConstant.ENABLE);
+//        Integer sold = dishMapper.countByStatus(map);
+//        // 查询未起售的菜品
+//        map.put("status", StatusConstant.DISABLE);
+//        Integer discontinued = dishMapper.countByStatus(map);
+//
+//        // 封装成对应的VO返回
+//        return DishOverViewVO.builder()
+//                .sold(sold)
+//                .discontinued(discontinued)
+//                .build();
+//    }
 
     /**
      * 查询套餐总览

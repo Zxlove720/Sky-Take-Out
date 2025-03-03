@@ -139,7 +139,7 @@ public class EmployeeController {
     /**
      * 启用/禁用员工账号
      *
-     * @param status 员工状态，前端是传递的想要把员工启用/禁用后的状态，用status封装Employee对象
+     * @param status 员工状态，前端是传递的是员工当前的状态，用status封装Employee对象
      * @param id 员工id，根据id来封装Employee对象，便于在数据库中修改
      * @return Result
      */
