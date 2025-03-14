@@ -36,7 +36,7 @@ public interface DishService {
      *
      * @param dishDTO
      */
-    public void saveWithFlavor(DishDTO dishDTO);
+    void saveWithFlavor(DishDTO dishDTO);
 
     /**
      * 删除菜品
